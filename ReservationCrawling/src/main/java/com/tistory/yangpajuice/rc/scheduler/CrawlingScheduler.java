@@ -22,7 +22,7 @@ public class CrawlingScheduler {
 		daejeocampingService.start();
 	}
 	
-	@Scheduled(cron = "0 0/5 * * * *") // 매 5분 마다
+	@Scheduled(cron = "0 0/3 * * * *") // 매35분 마다
 	public void CampingSchuduler() {
 		daejeocampingService.start();
 	}
