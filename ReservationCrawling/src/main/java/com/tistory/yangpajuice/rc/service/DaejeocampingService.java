@@ -52,13 +52,14 @@ public class DaejeocampingService implements IService {
 			
 			Map<String, Map<String, CampingItem>> campingItemDateMap = getCampingItemDateMap();
 			for (String key : campingItemDateMap.keySet()) {
+				String dateDesc = StrUtil.toDateFormat("yyyyMMdd", "yyyy-MM-dd EEE", key);
 				Map<String, CampingItem> campingItemMap = campingItemDateMap.get(key);
 				Map<String, CampingItem> cacheCampingItemMap = cacheCampingItemDateMap.get(key);
 				
 				if (cacheCampingItemMap == null) {
 					cacheCampingItemDateMap.put(key, campingItemMap);
 					logger.info("new date = " + key);
-					telegram.sendMessage("*** " + SITE_NAME + " Open Date : " + StrUtil.toDateFormat("yyyyMMdd", "yyyy-MM-dd", key));
+					telegram.sendMessage("*** " + SITE_NAME + " Open Date : " + dateDesc);
 					
 				} else {
 					for (String itemKey : campingItemMap.keySet()) {
@@ -75,7 +76,7 @@ public class DaejeocampingService implements IService {
 							// completed/waiting ==> available
 							if (campingItem.getState().equals(CampingState.AVAILABLE) == true) {
 								logger.info("[" + key + "] available = " + campingItem.toString());
-								telegram.sendMessage("*** " + SITE_NAME + " available : " + StrUtil.toDateFormat("yyyyMMdd", "yyyy-MM-dd", key) + campingItem.toString());
+								telegram.sendMessage("*** " + SITE_NAME + " available : " + dateDesc + " " + campingItem.toString());
 							}
 						}
 					}
