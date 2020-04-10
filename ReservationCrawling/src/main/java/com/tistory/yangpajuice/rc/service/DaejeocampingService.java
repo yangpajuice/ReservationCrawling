@@ -94,6 +94,12 @@ public class DaejeocampingService implements IService {
 		
 		Calendar cal = Calendar.getInstance();
 		while (true) {
+			cal.add(Calendar.DAY_OF_YEAR, 1);
+			
+			if (checkDate(cal) == false) {
+				continue;
+			}
+			
 			Map<String, CampingItem> campingItemMap = getCampingItemMap(cal);
 			
 			boolean nonState = false;
@@ -110,12 +116,21 @@ public class DaejeocampingService implements IService {
 
 			String parsedDate = StrUtil.toDateFormat("yyyyMMdd", cal);
 			campingItemDateMap.putIfAbsent(parsedDate, campingItemMap);
-			
-			cal.add(Calendar.DAY_OF_YEAR, 1);
+
 			Thread.sleep(1000);
 		}
 		
 		return campingItemDateMap;
+	}
+	
+	private boolean checkDate(Calendar cal) {
+		// weekend
+		int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+		if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	private Map<String, CampingItem> getCampingItemMap(Calendar cal) throws Exception {
