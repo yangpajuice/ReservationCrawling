@@ -1,5 +1,5 @@
 package com.tistory.yangpajuice.rc.service;
 
-public interface IService {
+public interface ICampingService {
 	public void start();
 }
