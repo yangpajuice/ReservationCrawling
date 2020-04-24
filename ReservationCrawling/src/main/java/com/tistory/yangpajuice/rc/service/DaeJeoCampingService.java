@@ -46,7 +46,7 @@ public class DaeJeoCampingService extends CampingService {
 			}
 			
 			campingItemMap.put(campingItem.getKey(), campingItem);
-			logger.debug(campingItem.toString());
+			//logger.debug(campingItem.toString());
 		}
 		
 		return campingItemMap;

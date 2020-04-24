@@ -3,6 +3,8 @@ package com.tistory.yangpajuice.rc.util;
 import java.text.*;
 import java.util.*;
 
+import com.tistory.yangpajuice.rc.service.*;
+
 public class StrUtil {
 	public static String toDateFormat(String fromFormat, String toFormat, String data) {
 		String rtnValue = "";
@@ -31,5 +33,21 @@ public class StrUtil {
 		}
 		
 		return rtnValue;
+	}
+	
+	public static Calendar toCalendarFormat(String format, String dateString) {
+		Calendar cal = null;
+		
+		try {
+			SimpleDateFormat formatter = new SimpleDateFormat(format);
+			Date date = formatter.parse(dateString);
+			cal = Calendar.getInstance();
+			cal.setTime(date);
+			
+		} catch (Exception e) {
+			
+		}
+		
+		return cal;
 	}
 }

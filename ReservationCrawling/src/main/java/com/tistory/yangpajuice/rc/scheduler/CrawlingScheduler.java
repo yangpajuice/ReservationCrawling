@@ -20,11 +20,10 @@ public class CrawlingScheduler {
 	
 	@PostConstruct
     private void init() {
-		// for test ****************************
 		CampingSchuduler();
 	}
 	
-	@Scheduled(cron = "0 0/3 * * * *") // 매35분 마다
+	@Scheduled(cron = "0 0/3 * * * *") // 매3분 마다
 	public void CampingSchuduler() {
 		for (ICampingService campingService : campingServiceList) {
 			campingService.start();

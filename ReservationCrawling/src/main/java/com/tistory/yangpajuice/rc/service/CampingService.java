@@ -10,6 +10,7 @@ import org.jsoup.select.*;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 
+import com.tistory.yangpajuice.rc.config.*;
 import com.tistory.yangpajuice.rc.item.*;
 import com.tistory.yangpajuice.rc.util.*;
 
@@ -22,6 +23,9 @@ public abstract class CampingService implements ICampingService {
 	
 	@Autowired
 	protected Telegram telegram;
+	
+	@Autowired
+	private CampingConfig campingConfig;
 	
 	protected abstract String getDefaultUrl();
 	protected abstract String getSiteName();
@@ -99,16 +103,26 @@ public abstract class CampingService implements ICampingService {
 	private Map<String, Map<String, CampingItem>> getCampingItemDateMap() throws Exception {
 		Map<String, Map<String, CampingItem>> campingItemDateMap = new HashMap<String, Map<String,CampingItem>>();
 		
-		Calendar cal = Calendar.getInstance();
-		int days = 0;
-		while (days < MAX_DAYS) {
-			days++;
-			cal.add(Calendar.DAY_OF_YEAR, 1);
-			
-			if (checkDate(cal) == false) {
-				continue;
+		List<Calendar> dateList = new ArrayList<Calendar>();
+		String reservationDateList = campingConfig.getReservationDateList();
+		if (reservationDateList == null || reservationDateList.length() == 0) { // 설정이 없는 경우 31일 조회
+			int days = 0;
+			while (days < MAX_DAYS) {
+				Calendar cal = Calendar.getInstance();
+				cal.add(Calendar.DAY_OF_YEAR, days);
+				dateList.add(cal);
+				
+				days++;
 			}
-			
+		} else { // 설정이 있는 경우 설정일만 조회
+			String[] dateStringList = reservationDateList.split(",");
+			for (String dateString : dateStringList) {
+				Calendar cal = StrUtil.toCalendarFormat(DATE_FORMAT, dateString);
+				dateList.add(cal);
+			}
+		}
+
+		for (Calendar cal : dateList) {
 			Map<String, CampingItem> campingItemMap = getCampingItemMap(cal);
 			
 			boolean nonState = false;
@@ -131,17 +145,7 @@ public abstract class CampingService implements ICampingService {
 		
 		return campingItemDateMap;
 	}
-	
-	private boolean checkDate(Calendar cal) {
-		// weekend
-		int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-		if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
-			return true;
-		}
-		
-		return false;
-	}
-	
+
 	private Map<String, CampingItem> getCampingItemMap(Calendar cal) throws Exception {
 		logger.debug("inquiry date = " + StrUtil.toDateFormat(DATE_FORMAT, cal));
 		Map<String, String> data = getInquiryData(cal);
