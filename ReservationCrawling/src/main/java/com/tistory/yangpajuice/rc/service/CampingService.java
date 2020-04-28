@@ -14,7 +14,7 @@ import com.tistory.yangpajuice.rc.config.*;
 import com.tistory.yangpajuice.rc.item.*;
 import com.tistory.yangpajuice.rc.util.*;
 
-public abstract class CampingService implements ICampingService {
+public abstract class CampingService implements IService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final String userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36";
 	private final String DATE_FORMAT = "yyyyMMdd";
