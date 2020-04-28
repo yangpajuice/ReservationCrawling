@@ -16,7 +16,7 @@ public class CrawlingScheduler {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
-	private List<ICampingService> campingServiceList;
+	private List<IService> campingServiceList;
 	
 	@PostConstruct
     private void init() {
@@ -25,7 +25,7 @@ public class CrawlingScheduler {
 	
 	@Scheduled(cron = "0 0/3 * * * *") // 매3분 마다
 	public void CampingSchuduler() {
-		for (ICampingService campingService : campingServiceList) {
+		for (IService campingService : campingServiceList) {
 			campingService.start();
 		}
 	}
