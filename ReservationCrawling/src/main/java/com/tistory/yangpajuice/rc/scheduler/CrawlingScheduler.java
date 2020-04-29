@@ -19,12 +19,16 @@ public class CrawlingScheduler {
 	private List<CampingService> campingServiceList;
 	
 	@Autowired
-	HardKernelService hardKernelService;
+	private HardKernelService hardKernelService;
+	
+	@Autowired
+	private ClienService clienService;
 	
 	@PostConstruct
     private void init() {
 		CampingSchuduler();
 		HardKernel();
+		Clien();
 	}
 	
 	@Scheduled(cron = "0 0/3 * * * *") // 매3분 마다
@@ -37,5 +41,10 @@ public class CrawlingScheduler {
 	@Scheduled(cron = "30 3/10 08-17 ? * MON-FRI")
 	public void HardKernel() {
 		hardKernelService.start();
+	}
+	
+	@Scheduled(cron = "0 0/2 08-18 ? * MON-FRI") // 월~금, 매월, 아무 날이나, 08:00 ~ 20:59, 2분마다, 0초에
+	public void Clien() {
+		clienService.start();
 	}
 }
