@@ -16,11 +16,15 @@ public class CrawlingScheduler {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
-	private List<IService> campingServiceList;
+	private List<CampingService> campingServiceList;
+	
+	@Autowired
+	HardKernelService hardKernelService;
 	
 	@PostConstruct
     private void init() {
 		CampingSchuduler();
+		HardKernel();
 	}
 	
 	@Scheduled(cron = "0 0/3 * * * *") // 매3분 마다
@@ -28,5 +32,10 @@ public class CrawlingScheduler {
 		for (IService campingService : campingServiceList) {
 			campingService.start();
 		}
+	}
+	
+	@Scheduled(cron = "30 3/10 08-17 ? * MON-FRI")
+	public void HardKernel() {
+		hardKernelService.start();
 	}
 }

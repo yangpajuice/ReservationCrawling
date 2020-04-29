@@ -23,6 +23,6 @@ public class ReservationCrawlingApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("*** ReservationCrawlingApplication is now running");
-		telegram.sendMessage("*** ReservationCrawling is now running");
+		//telegram.sendMessage("*** ReservationCrawling is now running");
 	}
 }

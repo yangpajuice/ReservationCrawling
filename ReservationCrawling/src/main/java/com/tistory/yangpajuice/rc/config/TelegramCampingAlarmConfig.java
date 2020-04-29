@@ -4,16 +4,17 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 
 @Component
-public class TelegramConfig implements ITelegramConfig {
-	@Value("${telegram.bot.username}")
+public class TelegramCampingAlarmConfig implements ITelegramConfig {
+	@Value("${telegram.campingalarm.username}")
 	private String botUserName = "";
 	
-	@Value("${telegram.bot.token}")
+	@Value("${telegram.campingalarm.token}")
 	private String botToken = "";
 	
-	@Value("${telegram.bot.chatid}")
+	@Value("${telegram.campingalarm.chatid}")
 	private String botChatId = "";
 
+	@Override
 	public String getBotUserName() {
 		return botUserName;
 	}
@@ -22,6 +23,7 @@ public class TelegramConfig implements ITelegramConfig {
 		this.botUserName = botUserName;
 	}
 
+	@Override
 	public String getBotToken() {
 		return botToken;
 	}
@@ -30,6 +32,7 @@ public class TelegramConfig implements ITelegramConfig {
 		this.botToken = botToken;
 	}
 
+	@Override
 	public String getBotChatId() {
 		return botChatId;
 	}

@@ -27,6 +27,9 @@ public abstract class CampingService implements IService {
 	@Autowired
 	private CampingConfig campingConfig;
 	
+	@Autowired
+	private TelegramCampingAlarmConfig telegramCampingAlarmConfig;
+	
 	protected abstract String getDefaultUrl();
 	protected abstract String getSiteName();
 	protected abstract Map<String, String> getInquiryData(Calendar cal);
@@ -42,6 +45,7 @@ public abstract class CampingService implements IService {
 			logger.error("An exception occurred!", e);
 		}
 		logger.info("Initialized");
+		telegram.sendMessage(telegramCampingAlarmConfig, getSiteName() + " is initialized");
 	}
 	
 	private void removeOldCacheData() throws Exception {
@@ -70,7 +74,7 @@ public abstract class CampingService implements IService {
 				if (cacheCampingItemMap == null) {
 					cacheCampingItemDateMap.put(key, campingItemMap);
 					logger.info("new date = " + key);
-					telegram.sendMessage("*** " + getSiteName() + " Open Date : " + dateDesc);
+					telegram.sendMessage(telegramCampingAlarmConfig, "*** " + getSiteName() + " Open Date : " + dateDesc);
 					
 				} else {
 					for (String itemKey : campingItemMap.keySet()) {
@@ -87,7 +91,7 @@ public abstract class CampingService implements IService {
 							// completed/waiting ==> available
 							if (campingItem.getState().equals(CampingState.AVAILABLE) == true) {
 								logger.info("[" + key + "] available = " + campingItem.toString());
-								telegram.sendMessage("*** " + getSiteName() + " available : " + dateDesc + " " + campingItem.toString());
+								telegram.sendMessage(telegramCampingAlarmConfig, "*** " + getSiteName() + " available : " + dateDesc + " " + campingItem.toString());
 							}
 						}
 					}

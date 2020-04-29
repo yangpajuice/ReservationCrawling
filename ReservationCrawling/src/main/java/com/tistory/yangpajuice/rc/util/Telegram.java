@@ -17,13 +17,21 @@ private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private TelegramConfig telegramConfig;
 	
 	public boolean sendMessage(String text) {
+		return sendMessage(null, text);
+	}
+	
+	public boolean sendMessage(ITelegramConfig config, String text) {
 		boolean result = false;
 
 		try {
 			String urlString = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s";
 
-			String apiToken = telegramConfig.getBotToken();
-			String chatId = telegramConfig.getBotChatId();
+			if (config == null) {
+				config = telegramConfig;
+			}
+			String apiToken = config.getBotToken();
+			String chatId = config.getBotChatId();
+			
 			String encoded = URLEncoder.encode(text, "UTF-8");
 
 			urlString = String.format(urlString, new Object[] { apiToken, chatId, encoded });
