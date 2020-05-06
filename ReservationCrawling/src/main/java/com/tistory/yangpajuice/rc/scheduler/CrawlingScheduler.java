@@ -27,12 +27,19 @@ public class CrawlingScheduler {
 	@Autowired
 	private AsusFirmwareService asusFirmwareService;
 	
+	@Autowired
+	private LotteCinemaService lotteCinemaService;
+	
+	@Autowired
+	private CgvCinemaService cgvCinemaService;
+	
 	@PostConstruct
     private void init() {
 		CampingSchuduler();
 		HardKernel();
 		Clien();
 		AsusFirmware();
+		Cinema();
 	}
 	
 	@Scheduled(cron = "0 0/3 * * * *") // 매3분 마다
@@ -55,5 +62,11 @@ public class CrawlingScheduler {
 	@Scheduled(cron = "20 0/60 08-17 ? * MON-FRI") // 월~금, 매월, 아무 날이나, 08:00 ~ 20:59, 2분마다, 0초에
 	public void AsusFirmware() {
 		asusFirmwareService.start();
+	}
+	
+	@Scheduled(cron = "40 0/2 08-18 ? * MON-FRI") // 월~금, 매월, 아무 날이나, 08:00 ~ 20:59, 2분마다, 0초에
+	public void Cinema() {
+		cgvCinemaService.start();
+		lotteCinemaService.start();
 	}
 }
