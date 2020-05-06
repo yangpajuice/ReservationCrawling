@@ -34,7 +34,7 @@ public class HardKernelService implements IService {
 		Iterator<String> keys = prevItems.keySet().iterator();
         while (keys.hasNext()) {
             String key = keys.next();            
-            logger.info("AsusFirmwareService.init() PrevItem = " + key);
+            logger.info("HardKernelService.init() PrevItem = " + key);
         }
         telegram.sendMessage(telegramHardkernelAlarmConfig, "HardKernel is initialized");
 	}
@@ -53,10 +53,13 @@ public class HardKernelService implements IService {
 	            if (prevItems.containsKey(key) == true) {
 	            	HardKernelItem prevItem = prevItems.get(key);
 	            	if (value.getPrice().equals(prevItem.getPrice()) == false) { // 가격 변경
+	            		// update
+	            		prevItem.setPrice(value.getPrice());
+	            		
 		            	String msg = "[HardKernel] 가격 변경 : " + value.getName() + "\n";
 		            	msg += prevItem.getPrice() + " => " + "\n";
 		            	msg += value.getPrice() + " => ";
-			        	telegram.sendMessage(msg);
+			        	telegram.sendMessage(telegramHardkernelAlarmConfig, msg);
 	            	}
 
 	        	} else {

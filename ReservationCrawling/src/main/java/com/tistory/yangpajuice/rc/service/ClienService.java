@@ -59,7 +59,7 @@ public class ClienService implements IService {
 	        	String msg = "[Clien]\n";
 	        	msg += value.getDesc() + "\n";
 	        	msg += value.getUrl();
-	        	telegram.sendMessage(msg);
+	        	telegram.sendMessage(telegramClienAlarmConfig, msg);
 	        	Thread.sleep(100);
 	        }
 		} catch (Exception e) {
