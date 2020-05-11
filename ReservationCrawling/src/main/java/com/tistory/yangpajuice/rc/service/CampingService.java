@@ -122,6 +122,12 @@ public abstract class CampingService implements IService {
 			String[] dateStringList = reservationDateList.split(",");
 			for (String dateString : dateStringList) {
 				Calendar cal = StrUtil.toCalendarFormat(DATE_FORMAT, dateString);
+				
+				Calendar calNow = Calendar.getInstance();
+				if (cal.before(calNow) == true) {
+					continue;
+				}
+				
 				dateList.add(cal);
 			}
 		}
