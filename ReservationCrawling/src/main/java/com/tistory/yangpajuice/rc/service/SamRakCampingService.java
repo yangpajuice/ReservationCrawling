@@ -13,7 +13,7 @@ import com.tistory.yangpajuice.rc.util.*;
 @Service
 public class SamRakCampingService extends CampingService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private final String URL = "https://www.nakdongcamping.com/Camp.mobiz";
+	private final String URL = "https://www.nakdongcamping.com/reservation/real_time";
 	private final String SITE_NAME = "SamRakCamping";
 	
 	@Override
@@ -38,7 +38,7 @@ public class SamRakCampingService extends CampingService {
 	@Override
 	protected Map<String, CampingItem> getCampingItemMap(Document doc) throws Exception {
 		Map<String, CampingItem> campingItemMap = new HashMap<>();
-		Elements elms = doc.select("fieldset.ui-area");
+		Elements elms = doc.select("div.click_inner a");
 		for (Element elm : elms) {
 			CampingItem campingItem = getCampingItem(elm);
 			if (campingItem == null) {
@@ -56,27 +56,25 @@ public class SamRakCampingService extends CampingService {
 		CampingItem campingItem = new CampingItem();
 		campingItem.setState(CampingState.AVAILABLE);
 		
-		String[] clazzList = elm.attr("class").split("ui-");
+		String no = elm.childNode(0).toString();
+		campingItem.setNo(no);
+		
+		String area = elm.childNode(3).attr("value");
+		campingItem.setArea(area);
+		
+		String[] clazzList = elm.attr("class").split("  ");
 		for (String clazz : clazzList) {
 			clazz = clazz.trim();
-			if (clazz.startsWith("type") == true) { // ex) type-A
-				String area = clazz.substring(clazz.length() - 1, clazz.length());
-				campingItem.setArea(area);
-				
-			} else if (clazz.startsWith("state-comp") == true) {
+			if (clazz.startsWith("cbtn_Pcomplete") == true) {
 				campingItem.setState(CampingState.COMPLETED);
 				
-			} else if (clazz.startsWith("state-wait") == true) {
+			} else if (clazz.startsWith("cbtn_Pwaiting") == true) {
 				campingItem.setState(CampingState.WAITING);
 				
-			} else if (clazz.startsWith("state-none") == true) {
+			} else if (clazz.startsWith("cbtn_Pnone") == true) {
 				campingItem.setState(CampingState.NONE);
 			}
 		}
-		
-		Elements labelElms = elm.select("label");
-		String no = labelElms.text();
-		campingItem.setNo(no);
 		
 		return campingItem;
 	}

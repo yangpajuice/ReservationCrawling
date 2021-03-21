@@ -158,9 +158,22 @@ public abstract class CampingService implements IService {
 		for (Calendar cal : dateList) {
 			Map<String, CampingItem> campingItemMap = getCampingItemMap(cal);
 			
+			String reservationDate = StrUtil.toDateFormat(DATE_FORMAT, cal);
+			CampingParam param = new CampingParam();
+			param.setSite(getSiteName());
+			param.setReservatinDate(reservationDate);
+			int seq = dbService.getMaxSeq(param);
+			seq += 1;
+			logger.debug("reservationDate = " + reservationDate + " / seq = " + seq);
+			
 			boolean nonState = false;
 			for (String key : campingItemMap.keySet()) {
 				CampingItem campingItem = campingItemMap.get(key);
+				campingItem.setSeq(seq);
+				campingItem.setSite(getSiteName());
+				campingItem.setReservatinDate(reservationDate);
+				dbService.insertCampingItem(campingItem);
+				
 				if (campingItem.getState().equals(CampingState.NONE) == true) {
 					nonState = true;
 				}

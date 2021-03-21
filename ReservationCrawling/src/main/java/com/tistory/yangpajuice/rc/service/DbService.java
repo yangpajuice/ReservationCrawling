@@ -21,6 +21,9 @@ public class DbService {
 	@Autowired
 	private IConfigMapper configMapper;
 	
+	@Autowired
+	private ICampingMapper campingMapper;
+	
 	@PostConstruct
     private void init() {
 		createTable();
@@ -31,6 +34,9 @@ public class DbService {
 		try {
 			if (configMapper.checkTableExists() < 1) {
 				configMapper.createTable();
+			}
+			if (campingMapper.checkTableExists() < 1) {
+				campingMapper.createTable();
 			}
 			
 			return true;
@@ -53,5 +59,22 @@ public class DbService {
 		}
 		
 		return rtnValue;
+	}
+	
+	public int insertCampingItem(CampingItem item) {
+		int rtnValue = 0;
+		
+		try {
+			rtnValue = campingMapper.insertCampingItem(item);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+		
+		return rtnValue;
+	}
+	
+	public int getMaxSeq(CampingParam param) {
+		return campingMapper.getMaxSeq(param);
 	}
 }

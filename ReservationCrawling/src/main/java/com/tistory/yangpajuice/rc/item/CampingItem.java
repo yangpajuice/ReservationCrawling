@@ -6,6 +6,10 @@ public class CampingItem implements IDataItem {
 	private String area = "";
 	private String no = "";
 	private CampingState state = CampingState.UNKNOWN;
+	private String reservatinDate = "";
+	private int seq = 0;
+	private String site = "";
+	private String stateDesc = "";
 	
 	@Override
 	public String getKey() {
@@ -58,5 +62,30 @@ public class CampingItem implements IDataItem {
 
 	public void setState(CampingState state) {
 		this.state = state;
+		this.stateDesc = state.toString();
+	}
+
+	public String getReservatinDate() {
+		return reservatinDate;
+	}
+
+	public void setReservatinDate(String reservatinDate) {
+		this.reservatinDate = reservatinDate;
+	}
+
+	public int getSeq() {
+		return seq;
+	}
+
+	public void setSeq(int seq) {
+		this.seq = seq;
+	}
+
+	public String getSite() {
+		return site;
+	}
+
+	public void setSite(String site) {
+		this.site = site;
 	}
 }
