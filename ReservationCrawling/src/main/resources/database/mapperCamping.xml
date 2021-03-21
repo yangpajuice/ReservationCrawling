@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tistory.yangpajuice.rc.mapper.ICampingMapper">
+	<select id="checkTableExists" resultType="int">
+	<![CDATA[
+	    SELECT COUNT(*) FROM USER_TABLES WHERE TABLE_NAME = 'RC_CAMPING'
+	]]>
+	</select>
+
+	<insert id="createTable">
+		CREATE TABLE RC_CAMPING (
+			SITE VARCHAR(20) NOT NULL,
+			SEQ NUMBER(11) NOT NULL,
+			RESERVATION_DATE DATE,
+			AREA VARCHAR(10),
+			NO VARCHAR(10),
+			STATE VARCHAR(10),
+			INSERTED_DATE DATE
+		)
+	</insert>
+	
+	<insert id="insertCampingItem" parameterType="com.tistory.yangpajuice.rc.item.CampingItem">
+	    INSERT INTO RC_CAMPING
+	    (
+	    SITE, SEQ, RESERVATION_DATE, AREA, NO, STATE, INSERTED_DATE
+    	)
+	    VALUES
+	    (
+	    #{site}, #{seq}, TO_DATE(#{reservatinDate}, 'YYYYMMDD'), #{area}, #{no} , #{stateDesc}, SYSDATE
+	    )
+	</insert>
+	
+	<select id="getMaxSeq" resultType="int" parameterType="com.tistory.yangpajuice.rc.param.CampingParam">
+	<![CDATA[
+	    SELECT NVL(MAX(SEQ), '0') FROM RC_CAMPING
+	    WHERE SITE = #{site}
+	    AND RESERVATION_DATE = TO_DATE(#{reservatinDate}, 'YYYYMMDD')
+	]]>
+	</select>
+</mapper>
