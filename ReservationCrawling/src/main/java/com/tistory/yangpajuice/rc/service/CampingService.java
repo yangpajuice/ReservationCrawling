@@ -6,12 +6,13 @@ import javax.annotation.*;
 
 import org.jsoup.*;
 import org.jsoup.nodes.*;
-import org.jsoup.select.*;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 
 import com.tistory.yangpajuice.rc.config.*;
+import com.tistory.yangpajuice.rc.constants.*;
 import com.tistory.yangpajuice.rc.item.*;
+import com.tistory.yangpajuice.rc.param.*;
 import com.tistory.yangpajuice.rc.util.*;
 
 public abstract class CampingService implements IService {
@@ -23,12 +24,12 @@ public abstract class CampingService implements IService {
 	
 	@Autowired
 	protected Telegram telegram;
-	
-	@Autowired
-	private CampingConfig campingConfig;
-	
+
 	@Autowired
 	private TelegramCampingAlarmConfig telegramCampingAlarmConfig;
+	
+	@Autowired
+    private DbService dbService;
 	
 	protected abstract String getDefaultUrl();
 	protected abstract String getSiteName();
@@ -46,6 +47,27 @@ public abstract class CampingService implements IService {
 		}
 		logger.info("Initialized");
 		telegram.sendMessage(telegramCampingAlarmConfig, getSiteName() + " is initialized");
+	}
+	
+	private List<String> reservationDateList() {
+		List<String> rtnList = new ArrayList<String>();
+		
+		try {
+			ConfigParam param = new ConfigParam();
+			param.setSectId(CodeConstants.SECT_ID_CAMP);
+			param.setKeyId(CodeConstants.KEY_ID_DATE);
+			List<ConfigItem> configItemList = dbService.getConfigItemList(param);
+			if (configItemList != null && configItemList.size() > 0) {
+				for (ConfigItem configItem : configItemList) {
+					rtnList.add(configItem.getValue());
+				}
+			}
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+		
+		return rtnList;
 	}
 	
 	private void removeOldCacheData() throws Exception {
@@ -108,8 +130,8 @@ public abstract class CampingService implements IService {
 		Map<String, Map<String, CampingItem>> campingItemDateMap = new HashMap<String, Map<String,CampingItem>>();
 		
 		List<Calendar> dateList = new ArrayList<Calendar>();
-		String reservationDateList = campingConfig.getReservationDateList();
-		if (reservationDateList == null || reservationDateList.length() == 0) { // 설정이 없는 경우 31일 조회
+		List<String> reservationDateList = reservationDateList();
+		if (reservationDateList == null || reservationDateList.size() == 0) { // 설정이 없는 경우 31일 조회
 			int days = 0;
 			while (days < MAX_DAYS) {
 				Calendar cal = Calendar.getInstance();
@@ -119,12 +141,13 @@ public abstract class CampingService implements IService {
 				days++;
 			}
 		} else { // 설정이 있는 경우 설정일만 조회
-			String[] dateStringList = reservationDateList.split(",");
-			for (String dateString : dateStringList) {
-				Calendar cal = StrUtil.toCalendarFormat(DATE_FORMAT, dateString);
+			for (String dateString : reservationDateList) {
+				logger.info("reservationDate = " + dateString);
 				
+				Calendar cal = StrUtil.toCalendarFormat(DATE_FORMAT, dateString);
 				Calendar calNow = Calendar.getInstance();
 				if (cal.before(calNow) == true) {
+					logger.info("reservationDate is over = " + dateString);
 					continue;
 				}
 				

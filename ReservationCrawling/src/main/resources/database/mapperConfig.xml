@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tistory.yangpajuice.rc.mapper.IConfigMapper">
+	<resultMap id="resultConfigItem" type="com.tistory.yangpajuice.rc.item.ConfigItem">
+	    <result property="sectId" column="SECT_ID" />
+	    <result property="keyId" column="KEY_ID" />
+	    <result property="seq" column="SEQ" />
+	    <result property="value" column="VALUE" />
+	</resultMap>
+	
+	<select id="checkTableExists" resultType="int">
+	<![CDATA[
+	    SELECT COUNT(*) FROM USER_TABLES WHERE TABLE_NAME = 'RC_CONFIG'
+	]]>
+	</select>
+
+	<insert id="createTable">
+		CREATE TABLE RC_CONFIG (
+			SECT_ID VARCHAR(20) NOT NULL,
+			KEY_ID VARCHAR(20) NOT NULL,
+			SEQ NUMBER(11) NOT NULL,
+			VALUE VARCHAR(300) NOT NULL,
+			
+			CONSTRAINT RC_CONFIG_PK PRIMARY KEY(SECT_ID, KEY_ID, SEQ)
+		)
+	</insert>
+	
+	<select id="getConfigItemList" resultMap="resultConfigItem" parameterType="com.tistory.yangpajuice.rc.param.ConfigParam" >
+		SELECT SECT_ID, KEY_ID, SEQ, VALUE 
+		FROM RC_CONFIG
+		WHERE SECT_ID = #{sectId}
+		AND KEY_ID = #{keyId}
+		ORDER BY SEQ
+  	</select>
+</mapper>
