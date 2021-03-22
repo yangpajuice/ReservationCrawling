@@ -4,6 +4,9 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import org.jsoup.*;
+import org.jsoup.nodes.*;
+import org.jsoup.select.*;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
@@ -81,7 +84,16 @@ public class ClienService implements IService {
 			List<ConfigItem> configItemList = dbService.getConfigItemList(param);
 			if (configItemList != null && configItemList.size() > 0) {
 				for (ConfigItem configItem : configItemList) {
-					Map<String, ClienEventItem> items = getClienItems(configItem.getValue());
+					String url = configItem.getValue();
+					logger.info("URL = " + url);
+					
+					Document doc = Jsoup.connect(url).userAgent(
+							"Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36")
+							.timeout(30000)
+							.referrer("http://www.google.com").get();
+					
+					
+					Map<String, ClienEventItem> items = getClienItems(url, doc);
 					rtnValue.putAll(items);
 				}
 			}
@@ -92,27 +104,27 @@ public class ClienService implements IService {
 		return rtnValue;
 	}
 	
-	private Map<String, ClienEventItem> getClienItems(String url) {
+	private Map<String, ClienEventItem> getClienItems(String url, Document doc) {
 		Map<String, ClienEventItem> rtnValue = new TreeMap<String, ClienEventItem>(Collections.reverseOrder());
 		
 		try {
-			HtmlPage page = Utils.getPage(url);
-			List<HtmlSpan> eventList = page.getByXPath("//span[@class='list_subject']");
+			if (doc == null) {
+				return rtnValue;
+			}
 			
-			for (int i = 0; i < eventList.size(); i++) {
-				String subUrl = "";
-				String desc = "";
+			String mainCategory = doc.selectFirst("div h2").text();
+			logger.info("Main Category = " + mainCategory);
+			
+			Elements elms = doc.select("span.list_subject");
+			for (Element elm : elms) {
+				String subject = elm.attr("title");
 				
-				HtmlSpan event = eventList.get(i);
-				desc = event.getAttribute("title");
-				
-				HtmlAnchor targetNode = (HtmlAnchor) event.getChildNodes().get(1);
-				subUrl = targetNode.getAttribute("href");
-				
+				Element subElm = elm.selectFirst("a");
+				String subUrl = subElm.attr("href");
 				
 				ClienEventItem clienEventItem = new ClienEventItem();
 				clienEventItem.setId(subUrl);
-				clienEventItem.setDesc(desc);
+				clienEventItem.setDesc(subject);
 				clienEventItem.setUrl(baseUrl + subUrl);
 				
 				rtnValue.put(clienEventItem.getId(), clienEventItem);

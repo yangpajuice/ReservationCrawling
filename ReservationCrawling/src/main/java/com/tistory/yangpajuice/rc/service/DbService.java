@@ -24,6 +24,9 @@ public class DbService {
 	@Autowired
 	private ICampingMapper campingMapper;
 	
+	@Autowired
+	private IWebPageMapper webPageMapper;
+	
 	@PostConstruct
     private void init() {
 		createTable();
@@ -37,6 +40,9 @@ public class DbService {
 			}
 			if (campingMapper.checkTableExists() < 1) {
 				campingMapper.createTable();
+			}
+			if (webPageMapper.checkTableExists() < 1) {
+				webPageMapper.createTable();
 			}
 			
 			return true;
