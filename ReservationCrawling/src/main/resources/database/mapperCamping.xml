@@ -29,7 +29,7 @@
     	)
 	    VALUES
 	    (
-	    #{site}, #{seq}, TO_DATE(#{reservatinDate}, 'YYYYMMDD'), #{area}, #{no} , #{stateDesc}, SYSDATE
+	    #{site}, #{seq}, TO_DATE(#{reservatinDate}, 'YYYYMMDD'), #{area}, #{no} , #{stateDesc}, TO_DATE(#{insertedDate}, 'YYYYMMDDHH24MISS')
 	    )
 	</insert>
 	

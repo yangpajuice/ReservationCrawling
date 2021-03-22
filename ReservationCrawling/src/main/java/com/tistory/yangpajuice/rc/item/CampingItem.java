@@ -10,6 +10,7 @@ public class CampingItem implements IDataItem {
 	private int seq = 0;
 	private String site = "";
 	private String stateDesc = "";
+	private String insertedDate = "";
 	
 	@Override
 	public String getKey() {
@@ -87,5 +88,13 @@ public class CampingItem implements IDataItem {
 
 	public void setSite(String site) {
 		this.site = site;
+	}
+
+	public String getInsertedDate() {
+		return insertedDate;
+	}
+
+	public void setInsertedDate(String insertedDate) {
+		this.insertedDate = insertedDate;
 	}
 }

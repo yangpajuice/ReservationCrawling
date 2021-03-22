@@ -50,4 +50,34 @@ public class StrUtil {
 		
 		return cal;
 	}
+	
+	public static String getCurDateTime() {
+		return getCurDate() + "" + getCurTime();
+	}
+	
+	public static String getCurDate() {
+        try {
+        	Date date = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+
+            return sdf.format(date);
+        } catch(Exception e) {
+        	
+        }
+
+        return "";
+    }
+	
+	public static String getCurTime() {
+        try {
+        	Date date = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("HHmmss");
+
+            return sdf.format(date);
+        } catch(Exception e) {
+        	
+        }
+
+        return "";
+    }
 }

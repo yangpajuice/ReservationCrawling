@@ -172,6 +172,7 @@ public abstract class CampingService implements IService {
 				campingItem.setSeq(seq);
 				campingItem.setSite(getSiteName());
 				campingItem.setReservatinDate(reservationDate);
+				campingItem.setInsertedDate(StrUtil.getCurDateTime());
 				dbService.insertCampingItem(campingItem);
 				
 				if (campingItem.getState().equals(CampingState.NONE) == true) {
