@@ -10,20 +10,24 @@ import org.springframework.stereotype.*;
 
 import com.gargoylesoftware.htmlunit.html.*;
 import com.tistory.yangpajuice.rc.config.*;
+import com.tistory.yangpajuice.rc.constants.*;
 import com.tistory.yangpajuice.rc.item.*;
+import com.tistory.yangpajuice.rc.param.*;
 import com.tistory.yangpajuice.rc.util.*;
 
 @Service
 public class ClienService implements IService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final String baseUrl = "https://www.clien.net";
-	private final String jirumUrl = "https://www.clien.net/service/board/jirum";
 	
 	@Autowired
 	private Telegram telegram;
 	
 	@Autowired
 	private TelegramClienAlarmConfig telegramClienAlarmConfig;
+	
+	@Autowired
+    private DbService dbService;
 	
 	private Map<String, ClienEventItem> prevItems;
 	
@@ -71,7 +75,28 @@ public class ClienService implements IService {
 		Map<String, ClienEventItem> rtnValue = new TreeMap<String, ClienEventItem>(Collections.reverseOrder());
 		
 		try {
-			HtmlPage page = Utils.getPage(jirumUrl);
+			ConfigParam param = new ConfigParam();
+			param.setSectId(CodeConstants.SECT_ID_CLIEN);
+			param.setKeyId(CodeConstants.KEY_ID_URL);
+			List<ConfigItem> configItemList = dbService.getConfigItemList(param);
+			if (configItemList != null && configItemList.size() > 0) {
+				for (ConfigItem configItem : configItemList) {
+					Map<String, ClienEventItem> items = getClienItems(configItem.getValue());
+					rtnValue.putAll(items);
+				}
+			}
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+		
+		return rtnValue;
+	}
+	
+	private Map<String, ClienEventItem> getClienItems(String url) {
+		Map<String, ClienEventItem> rtnValue = new TreeMap<String, ClienEventItem>(Collections.reverseOrder());
+		
+		try {
+			HtmlPage page = Utils.getPage(url);
 			List<HtmlSpan> eventList = page.getByXPath("//span[@class='list_subject']");
 			
 			for (int i = 0; i < eventList.size(); i++) {
