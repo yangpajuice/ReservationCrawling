@@ -126,6 +126,10 @@ public class ClienService implements IService {
 				if (subUrl.startsWith(RULE_SUBURL) == true) {
 					continue;
 				}
+				subElements = elm.getElementsByAttribute("title");
+				if (subElements == null || subElements.size() == 0) {
+					continue;
+				}
 				logger.info("Sub URL = " + subUrl);
 				
 				String fullUrl = BASE_URL + subUrl;
