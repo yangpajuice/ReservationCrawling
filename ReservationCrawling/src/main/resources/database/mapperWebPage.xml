@@ -13,6 +13,7 @@
 	<insert id="createTable">
 		CREATE TABLE RC_WEBPAGE (
 			SITE VARCHAR(20) NOT NULL,
+			ID VARCHAR(20),
 			URL VARCHAR(300) NOT NULL,
 			MAIN_CATEGORY VARCHAR(100),
 			SUB_CATEGORY VARCHAR(100),
@@ -23,4 +24,23 @@
 			INSERTED_DATE DATE
 		)
 	</insert>
+	
+	<insert id="insertWebPageItem" parameterType="com.tistory.yangpajuice.rc.item.WebPageItem">
+	    INSERT INTO RC_WEBPAGE
+	    (
+		    SITE, ID, URL, MAIN_CATEGORY, SUB_CATEGORY, SUBJECT, 
+		    ARTICLE, LINK, USER_ID, INSERTED_DATE
+    	)
+	    VALUES
+	    (
+		    #{site}, #{id}, #{url}, #{mainCategory}, #{subCategory}, #{subject}, 
+		    #{article}, #{link}, #{userId}, TO_DATE(#{insertedDate}, 'YYYYMMDDHH24MISS')
+	    )
+	</insert>
+	
+	<select id="getMaxIdWebPageItem" resultType="String" parameterType="com.tistory.yangpajuice.rc.param.WebPageParam" >
+		SELECT MAX(ID)
+		FROM RC_WEBPAGE
+		WHERE URL LIKE #{url}||'%'
+  	</select>
 </mapper>

@@ -21,7 +21,9 @@ import com.tistory.yangpajuice.rc.util.*;
 @Service
 public class ClienService implements IService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private final String baseUrl = "https://www.clien.net";
+	private final String SITE = "Clien";
+	private final String BASE_URL = "https://www.clien.net";
+	private final String RULE_SUBURL = "/service/board/rule/";
 	
 	@Autowired
 	private Telegram telegram;
@@ -112,6 +114,37 @@ public class ClienService implements IService {
 				return rtnValue;
 			}
 			
+			WebPageParam param = new WebPageParam();
+			param.setUrl(url);
+			String curMaxId = dbService.getMaxIdWebPageItem(param);
+			logger.info("Max ID = " + curMaxId);
+			
+			Elements elements = doc.getElementsByClass("list_subject");
+			for (Element elm : elements) {
+				Elements subElements = elm.getElementsByAttribute("href");
+				String subUrl = subElements.attr("href");
+				if (subUrl.startsWith(RULE_SUBURL) == true) {
+					continue;
+				}
+				logger.info("Sub URL = " + subUrl);
+				
+				String fullUrl = BASE_URL + subUrl;
+				Document subDoc = Jsoup.connect(fullUrl).userAgent(
+						"Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36")
+						.timeout(30000)
+						.referrer("http://www.google.com").get();
+				
+				WebPageItem webPageItem = getWebPageItem(subDoc);
+				String newId = webPageItem.getId();
+				if (newId.compareTo(curMaxId) <= 0) {
+					break;
+				}
+
+				dbService.insertWebPageItem(webPageItem);
+				
+				Thread.sleep(1000);
+			}
+			
 			String mainCategory = doc.selectFirst("div h2").text();
 			logger.info("Main Category = " + mainCategory);
 			
@@ -125,7 +158,7 @@ public class ClienService implements IService {
 				ClienEventItem clienEventItem = new ClienEventItem();
 				clienEventItem.setId(subUrl);
 				clienEventItem.setDesc(subject);
-				clienEventItem.setUrl(baseUrl + subUrl);
+				clienEventItem.setUrl(BASE_URL + subUrl);
 				
 				rtnValue.put(clienEventItem.getId(), clienEventItem);
 			}
@@ -135,5 +168,54 @@ public class ClienService implements IService {
 		}
 		
 		return rtnValue;
+	}
+	
+	private WebPageItem getWebPageItem(Document doc) {
+		WebPageItem webPageItem = new WebPageItem();
+		
+		try {
+			webPageItem.setSite(SITE);
+			webPageItem.setInsertedDate(StrUtil.getCurDateTime());
+			
+			Elements elms = doc.select("meta");
+			for (Element elm : elms) {
+				String property = elm.attr("property");
+				if (property.equals("url") == true) {
+					String url = elm.attr("content");
+					webPageItem.setUrl(url);
+				}
+			}
+
+			elms = doc.getElementsByClass("post_category");
+			String subCategory = elms.get(0).text();
+			webPageItem.setSubCategory(subCategory);
+			
+			Element elmMainCategory = doc.getElementById("boardName");
+			String mainCategory = elmMainCategory.attr("value");
+			webPageItem.setMainCategory(mainCategory);
+			
+			Element elmSubject = doc.getElementById("subject");
+			String subject = elmSubject.attr("value");
+			webPageItem.setSubject(subject);
+			
+			Element elmArticle = doc.getElementById("content");
+			String article = elmArticle.attr("value");
+			webPageItem.setArticle(article);
+			
+			Element elmWriter = doc.getElementById("writer");
+			String userId = elmWriter.attr("value");
+			webPageItem.setUserId(userId);
+			
+			Element elmBoardSn = doc.getElementById("boardSn");
+			String id = elmBoardSn.attr("value");
+			webPageItem.setId(id);
+			
+//			webPageItem.setLink("");
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+		
+		return webPageItem;
 	}
 }

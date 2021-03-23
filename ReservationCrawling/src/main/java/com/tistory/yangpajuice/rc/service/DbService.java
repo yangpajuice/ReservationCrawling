@@ -83,4 +83,30 @@ public class DbService {
 	public int getMaxSeq(CampingParam param) {
 		return campingMapper.getMaxSeq(param);
 	}
+	
+	public int insertWebPageItem(WebPageItem item) {
+		int rtnValue = 0;
+		
+		try {
+			rtnValue = webPageMapper.insertWebPageItem(item);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+		
+		return rtnValue;
+	}
+	
+	public String getMaxIdWebPageItem(WebPageParam param) {
+		String rtnValue = "";
+		
+		try {
+			rtnValue = webPageMapper.getMaxIdWebPageItem(param);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+		
+		return rtnValue;
+	}
 }
