@@ -136,7 +136,7 @@ public class ClienService implements IService {
 				
 				WebPageItem webPageItem = getWebPageItem(subDoc);
 				String newId = webPageItem.getId();
-				if (newId.compareTo(curMaxId) <= 0) {
+				if (curMaxId != null && newId.compareTo(curMaxId) <= 0) {
 					break;
 				}
 
