@@ -46,7 +46,7 @@ public abstract class CampingService implements IService {
 			logger.error("An exception occurred!", e);
 		}
 		logger.info("Initialized");
-		telegram.sendMessage(telegramCampingAlarmConfig, getSiteName() + " is initialized");
+		sendTelegramMessage(telegramCampingAlarmConfig, getSiteName() + " is initialized");
 	}
 	
 	private List<String> reservationDateList() {
@@ -68,6 +68,26 @@ public abstract class CampingService implements IService {
 		}
 		
 		return rtnList;
+	}
+	
+	private void sendTelegramMessage(ITelegramConfig config, String text) {
+		try {
+			ConfigParam param = new ConfigParam();
+			param.setSectId(CodeConstants.SECT_ID_CAMP);
+			param.setKeyId(CodeConstants.KEY_ID_TELEGRAM);
+			List<ConfigItem> configItemList = dbService.getConfigItemList(param);
+			if (configItemList != null && configItemList.size() > 0) {
+				for (ConfigItem configItem : configItemList) {
+					if (configItem.getValue().equals(getSiteName()) == true) {
+						telegram.sendMessage(config, text);
+						break;
+					}
+				}
+			}
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
 	}
 	
 	private void removeOldCacheData() throws Exception {
@@ -96,7 +116,7 @@ public abstract class CampingService implements IService {
 				if (cacheCampingItemMap == null) {
 					cacheCampingItemDateMap.put(key, campingItemMap);
 					logger.info("new date = " + key);
-					telegram.sendMessage(telegramCampingAlarmConfig, "*** " + getSiteName() + " Open Date : " + dateDesc);
+					sendTelegramMessage(telegramCampingAlarmConfig, "*** " + getSiteName() + " Open Date : " + dateDesc);
 					
 				} else {
 					for (String itemKey : campingItemMap.keySet()) {
@@ -113,7 +133,7 @@ public abstract class CampingService implements IService {
 							// completed/waiting ==> available
 							if (campingItem.getState().equals(CampingState.AVAILABLE) == true) {
 								logger.info("[" + key + "] available = " + campingItem.toString());
-								telegram.sendMessage(telegramCampingAlarmConfig, "*** " + getSiteName() + " available : " + dateDesc + " " + campingItem.toString());
+								sendTelegramMessage(telegramCampingAlarmConfig, "*** " + getSiteName() + " available : " + dateDesc + " " + campingItem.toString());
 							}
 						}
 					}
