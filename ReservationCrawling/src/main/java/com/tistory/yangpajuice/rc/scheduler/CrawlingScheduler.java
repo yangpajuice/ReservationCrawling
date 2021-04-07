@@ -42,11 +42,15 @@ public class CrawlingScheduler {
 		Cinema();
 	}
 	
-	@Scheduled(cron = "0 0/3 * * * *") // 매3분 마다
+	@Scheduled(cron = "0 0/1 * * * *") // 매1분 마다
 	public void CampingSchuduler() {
+		logger.info("CampingSchuduler START");
+		
 		for (IService campingService : campingServiceList) {
 			campingService.start();
 		}
+		
+		logger.info("CampingSchuduler END");
 	}
 	
 	@Scheduled(cron = "30 3/10 08-17 ? * MON-FRI")
