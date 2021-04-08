@@ -1,7 +1,6 @@
 package com.tistory.yangpajuice.rc.util;
 
 import org.slf4j.*;
-import org.springframework.web.client.*;
 
 import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.*;
@@ -10,7 +9,6 @@ import com.google.gson.*;
 
 public class Utils {
 	static final public Gson gson = new Gson();
-    static final public RestTemplate restTemplate = new RestTemplate();
     
 	public static synchronized HtmlPage getPage(String url) {
 		final Logger logger = LoggerFactory.getLogger(HtmlPage.class);
