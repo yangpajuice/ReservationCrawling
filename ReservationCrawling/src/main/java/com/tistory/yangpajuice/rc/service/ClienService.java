@@ -11,7 +11,6 @@ import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 
-import com.gargoylesoftware.htmlunit.html.*;
 import com.tistory.yangpajuice.rc.config.*;
 import com.tistory.yangpajuice.rc.constants.*;
 import com.tistory.yangpajuice.rc.item.*;
