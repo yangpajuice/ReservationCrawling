@@ -190,8 +190,10 @@ public class ClienService implements IService {
 			}
 
 			elms = doc.getElementsByClass("post_category");
-			String subCategory = elms.get(0).text();
-			webPageItem.setSubCategory(subCategory);
+			if (elms != null && elms.size() > 0) {
+				String subCategory = elms.get(0).text();
+				webPageItem.setSubCategory(subCategory);
+			}
 			
 			Element elmMainCategory = doc.getElementById("boardName");
 			String mainCategory = elmMainCategory.attr("value");
