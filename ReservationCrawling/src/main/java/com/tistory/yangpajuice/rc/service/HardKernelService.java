@@ -135,7 +135,7 @@ public class HardKernelService implements IService {
 						rtnValue.putAll(tmpRtnValue);
 					}
 
-					Thread.sleep(500);
+					Thread.sleep(2000);
 				}
 			} else {
 				logger.error("URL Config does not exist.");
