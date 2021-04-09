@@ -1,5 +1,7 @@
 package com.tistory.yangpajuice.rc.mapper;
 
+import java.util.*;
+
 import org.apache.ibatis.annotations.*;
 
 import com.tistory.yangpajuice.rc.item.*;
@@ -12,4 +14,6 @@ public interface IWebPageMapper {
 	
 	public int insertWebPageItem(WebPageItem item);
 	public String getMaxIdWebPageItem(WebPageParam param);
+	public List<WebPageItem> getWebPageItemList(WebPageParam param);
+	public int updateWebPageItemIdIncrease(WebPageItem item);
 }

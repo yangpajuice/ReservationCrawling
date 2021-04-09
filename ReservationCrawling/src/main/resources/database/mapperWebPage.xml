@@ -4,6 +4,20 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.tistory.yangpajuice.rc.mapper.IWebPageMapper">
+	<resultMap id="resultWebPageItem" type="com.tistory.yangpajuice.rc.item.WebPageItem">
+	    <result property="site" column="SITE" />
+	    <result property="id" column="ID" />
+	    <result property="url" column="URL" />
+	    <result property="mainCategory" column="MAIN_CATEGORY" />
+	    <result property="subCategory" column="SUB_CATEGORY" />
+	    <result property="subject" column="SUBJECT" />
+	    <result property="article" column="ARTICLE" />
+	    <result property="link" column="LINK" />
+	    <result property="userId" column="USER_ID" />
+	    <result property="postDate" column="POST_DATE" />
+	    <result property="insertedDate" column="INSERTED_DATE" />
+	</resultMap>
+
 	<select id="checkTableExists" resultType="int">
 	<![CDATA[
 	    SELECT COUNT(*) FROM USER_TABLES WHERE TABLE_NAME = 'RC_WEBPAGE'
@@ -43,4 +57,27 @@
 		FROM RC_WEBPAGE
 		WHERE URL LIKE #{url}||'%'
   	</select>
+  	
+  	<select id="getWebPageItemList" resultMap="resultWebPageItem" parameterType="com.tistory.yangpajuice.rc.param.WebPageParam" >
+		SELECT SITE, ID, URL,
+		MAIN_CATEGORY, SUB_CATEGORY, SUBJECT, ARTICLE, LINK, USER_ID, 
+		TO_CHAR(POST_DATE, 'YYYYMMDDHH24MISS') AS POST_DATE, 
+		TO_CHAR(INSERTED_DATE, 'YYYYMMDDHH24MISS') AS INSERTED_DATE
+		FROM RC_WEBPAGE
+		WHERE SITE = #{site}
+		<if test="id != null and id != '' " >
+			AND ID = #{id}
+		</if>
+		<if test="mainCategory != null and mainCategory != '' " >
+			AND MAIN_CATEGORY = #{mainCategory}
+		</if>
+  	</select>
+  	
+  	<update id="updateWebPageItemIdIncrease" parameterType="com.tistory.yangpajuice.rc.item.WebPageItem">
+	    UPDATE RC_WEBPAGE
+	    SET ID = ID + 1
+	    WHERE MAIN_CATEGORY = #{mainCategory}
+	    AND SITE = #{site}
+	</update>
+  	
 </mapper>

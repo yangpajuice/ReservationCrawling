@@ -109,4 +109,30 @@ public class DbService {
 		
 		return rtnValue;
 	}
+	
+	public List<WebPageItem> getWebPageItemList(WebPageParam param) {
+		List<WebPageItem> rtnValue = null;
+		
+		try {
+			rtnValue = webPageMapper.getWebPageItemList(param);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+		
+		return rtnValue;
+	}
+	
+	public int updateWebPageItemIdIncrease(WebPageItem item) {
+		int rtnValue = 0;
+		
+		try {
+			rtnValue = webPageMapper.updateWebPageItemIdIncrease(item);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+		
+		return rtnValue;
+	}
 }

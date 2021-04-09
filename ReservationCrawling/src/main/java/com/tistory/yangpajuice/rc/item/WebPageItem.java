@@ -10,6 +10,7 @@ public class WebPageItem implements IDataItem {
 	private String article = "";
 	private String link = "";
 	private String userId = "";
+	private String postDate = "";
 	private String insertedDate = "";
 	
 	@Override
@@ -95,5 +96,13 @@ public class WebPageItem implements IDataItem {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public String getPostDate() {
+		return postDate;
+	}
+
+	public void setPostDate(String postDate) {
+		this.postDate = postDate;
 	}
 }
