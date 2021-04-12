@@ -47,7 +47,7 @@ public class CrawlingScheduler {
 		hardKernelService.start();
 	}
 	
-	@Scheduled(cron = "0 0/2 08-18 ? * MON-FRI") // 월~금, 매월, 아무 날이나, 08:00 ~ 20:59, 2분마다, 0초에
+	@Scheduled(cron = "0 0/2 * * * *") // 2분마다, 0초에
 	public void Clien() {
 		clienService.start();
 	}
