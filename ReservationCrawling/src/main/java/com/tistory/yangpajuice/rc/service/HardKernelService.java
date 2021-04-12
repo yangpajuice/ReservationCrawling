@@ -21,7 +21,6 @@ import com.tistory.yangpajuice.rc.util.*;
 public class HardKernelService implements IService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final String SITE = "HARD_KERNEL";
-	private final String hardKernel = "https://www.hardkernel.com/ko/product-category/odroid-board/";
 
 	@Autowired
 	private Telegram telegram;
