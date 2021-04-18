@@ -16,10 +16,10 @@ import com.tistory.yangpajuice.rc.service.*;
 
 @Component
 public class Telegram {
-private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
-	private TelegramConfig telegramConfig;
+	private TelegramConfig defaultTelegramConfig;
 	
 	@Autowired
     private DbService dbService;
@@ -52,7 +52,7 @@ private final Logger logger = LoggerFactory.getLogger(this.getClass());
 			String urlString = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s";
 
 			if (config == null) {
-				config = telegramConfig;
+				config = defaultTelegramConfig;
 			}
 			String apiToken = config.getBotToken();
 			String chatId = config.getBotChatId();
@@ -84,8 +84,8 @@ private final Logger logger = LoggerFactory.getLogger(this.getClass());
 		try {
 			String urlString = "https://api.telegram.org/bot%s/sendPhoto?chat_id=%s&photo=%s";
 
-			String apiToken = telegramConfig.getBotToken();
-			String chatId = telegramConfig.getBotChatId();
+			String apiToken = defaultTelegramConfig.getBotToken();
+			String chatId = defaultTelegramConfig.getBotChatId();
 			String encoded = URLEncoder.encode(photo_url, "UTF-8");
 
 			urlString = String.format(urlString, new Object[] { apiToken, chatId, encoded });

@@ -8,13 +8,20 @@ import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.scheduling.annotation.*;
 import org.springframework.stereotype.*;
+import org.telegram.telegrambots.meta.*;
+import org.telegram.telegrambots.updatesreceivers.*;
 
 import com.tistory.yangpajuice.rc.service.*;
+import com.tistory.yangpajuice.rc.service.telegrambot.*;
 
 @Component
 public class CrawlingScheduler {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	TelegramBotsApi telegramBotsApi = null;
 	
+	@Autowired
+	private ClienBot clienBot;
+
 	@Autowired
 	private List<CampingService> campingServiceList;
 	
@@ -26,9 +33,24 @@ public class CrawlingScheduler {
 
 	@PostConstruct
     private void init() {
+		registerTelegramBot();
+		
 		CampingSchuduler();
 		HardKernel();
 		Clien();
+	}
+	
+	private void registerTelegramBot() { // TelegramBot 설정
+		
+		try {
+			telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+
+			telegramBotsApi.registerBot(clienBot);
+			logger.info("ClienBot is added.");
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
 	}
 	
 	@Scheduled(cron = "*/30 * * * * *") // 매30초 마다
