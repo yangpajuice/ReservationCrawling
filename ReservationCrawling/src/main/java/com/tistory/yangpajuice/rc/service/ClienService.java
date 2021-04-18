@@ -28,9 +28,6 @@ public class ClienService implements IService {
 	private Telegram telegram;
 	
 	@Autowired
-	private TelegramClienAlarmConfig telegramClienAlarmConfig;
-	
-	@Autowired
     private DbService dbService;
 	
 	private Map<String, ClienEventItem> prevItems;
@@ -45,9 +42,9 @@ public class ClienService implements IService {
             logger.info("ClienService.init() PrevItem = " + value.getDesc());
         }
         
-        telegram.sendMessage(telegramClienAlarmConfig, "Clien is initialized");
+        telegram.sendMessage(CodeConstants.SECT_ID_CLIEN, "Clien is initialized");
 	}
-	
+
 	@Override
 	public void start() {
 		logger.info("#### ClienService is started #### ");
@@ -67,7 +64,7 @@ public class ClienService implements IService {
 	        	String msg = "[Clien]\n";
 	        	msg += value.getDesc() + "\n";
 	        	msg += value.getUrl();
-	        	telegram.sendMessage(telegramClienAlarmConfig, msg);
+	        	telegram.sendMessage(CodeConstants.SECT_ID_CLIEN, msg);
 	        	Thread.sleep(100);
 	        }
 		} catch (Exception e) {

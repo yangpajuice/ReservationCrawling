@@ -32,7 +32,9 @@
 		SELECT SECT_ID, KEY_ID, SEQ, VALUE 
 		FROM RC_CONFIG
 		WHERE SECT_ID = #{sectId}
-		AND KEY_ID = #{keyId}
+		<if test="keyId != null and keyId != '' " >
+			AND KEY_ID = #{keyId}
+		</if>
 		ORDER BY SEQ
   	</select>
 </mapper>

@@ -26,21 +26,18 @@ public class HardKernelService implements IService {
 	private Telegram telegram;
 
 	@Autowired
-	private TelegramHardkernelAlarmConfig telegramHardkernelAlarmConfig;
-
-	@Autowired
 	private DbService dbService;
 
 	@PostConstruct
 	private void init() {
-		telegram.sendMessage(telegramHardkernelAlarmConfig, "HardKernel is initialized");
+		telegram.sendMessage(CodeConstants.SECT_ID_HARDKERNEL, "HardKernel is initialized");
 	}
 
 	@Override
 	public void start() {
 		logger.info("#### HardKernelService is started ####");
 
-		try {
+		try {			
 			Map<String, WebPageItem> webPageItemListFromDb = getWebPageItemFromDb();
 			
 			ConfigParam param = new ConfigParam();
@@ -73,7 +70,7 @@ public class HardKernelService implements IService {
 							String msg = "New [" + webPageItemFromWeb.getMainCategory() + "] \n";
 							msg += webPageItemFromWeb.getSubCategory() + "\n";
 							msg += webPageItemFromWeb.getUrl();
-							telegram.sendMessage(telegramHardkernelAlarmConfig, msg);
+							telegram.sendMessage(CodeConstants.SECT_ID_HARDKERNEL, msg);
 
 						} else { // item exist
 							if (webPageItemFromWeb.getSubCategory().equals(webPageItemFromDb.getSubCategory()) == true
@@ -92,7 +89,7 @@ public class HardKernelService implements IService {
 									String msg = "[" + webPageItemFromWeb.getMainCategory() + "] \n";
 									msg += webPageItemFromDb.getSubCategory() + " -> " + webPageItemFromWeb.getSubCategory() + "\n";
 									msg += webPageItemFromWeb.getUrl();
-									telegram.sendMessage(telegramHardkernelAlarmConfig, msg);
+									telegram.sendMessage(CodeConstants.SECT_ID_HARDKERNEL, msg);
 								}
 							}
 						}

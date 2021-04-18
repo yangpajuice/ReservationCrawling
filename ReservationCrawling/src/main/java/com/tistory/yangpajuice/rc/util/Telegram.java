@@ -2,12 +2,17 @@ package com.tistory.yangpajuice.rc.util;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 
 import com.tistory.yangpajuice.rc.config.*;
+import com.tistory.yangpajuice.rc.constants.*;
+import com.tistory.yangpajuice.rc.item.*;
+import com.tistory.yangpajuice.rc.param.*;
+import com.tistory.yangpajuice.rc.service.*;
 
 @Component
 public class Telegram {
@@ -16,8 +21,28 @@ private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	@Autowired
 	private TelegramConfig telegramConfig;
 	
-	public boolean sendMessage(String text) {
-		return sendMessage(null, text);
+	@Autowired
+    private DbService dbService;
+	
+	public boolean sendMessage(String sectId, String text) {
+		TelegramConfig telegramConfig = new TelegramConfig();
+		
+		ConfigParam param = new ConfigParam();
+		param.setSectId(sectId);
+		List<ConfigItem> configItemList = dbService.getConfigItemList(param);
+		for (ConfigItem configItem : configItemList) {
+			if (configItem.getKeyId().equals(CodeConstants.KEY_ID_BOT_CHAT_ID) == true) {
+				telegramConfig.setBotChatId(configItem.getValue());
+				
+			} else if (configItem.getKeyId().equals(CodeConstants.KEY_ID_BOT_TOKEN) == true) {
+				telegramConfig.setBotToken(configItem.getValue());
+				
+			} else if (configItem.getKeyId().equals(CodeConstants.KEY_ID_BOT_USER_NAME) == true) {
+				telegramConfig.setBotUserName(configItem.getValue());
+			}
+		}
+		
+		return sendMessage(telegramConfig, text);
 	}
 	
 	public boolean sendMessage(ITelegramConfig config, String text) {
