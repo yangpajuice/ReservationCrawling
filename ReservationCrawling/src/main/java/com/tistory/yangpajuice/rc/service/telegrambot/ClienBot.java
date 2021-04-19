@@ -70,6 +70,32 @@ public class ClienBot extends TelegramLongPollingBot {
 		} else if (receivedMessage.toUpperCase().equals(MENU_REMOVE_ALARM) == true) {
 			
 		} else if (receivedMessage.toUpperCase().equals(MENU_SHOW_ALARM) == true) {
+			ConfigParam param = new ConfigParam();
+			param.setSectId(CodeConstants.SECT_ID_CLIEN);
+			param.setKeyId(CodeConstants.KEY_ID_ALARM_MAINCATEGORY);
+			List<ConfigItem> mainCategoryList = dbService.getConfigItemList(param);
+			sendMessage = "[Main Category]" + "\n";
+			if (mainCategoryList != null && mainCategoryList.size() > 0) {
+				for (ConfigItem mainCategory : mainCategoryList) {
+					sendMessage += mainCategory.getValue() + "\n";
+				}
+			} else {
+				sendMessage += "N/A" + "\n";
+			}
+			sendMessage += "\n";
+			
+			param = new ConfigParam();
+			param.setSectId(CodeConstants.SECT_ID_CLIEN);
+			param.setKeyId(CodeConstants.KEY_ID_ALARM_KEYWORD);
+			List<ConfigItem> keywordList = dbService.getConfigItemList(param);
+			sendMessage += "[Keyword]" + "\n";
+			if (keywordList != null && keywordList.size() > 0) {
+				for (ConfigItem keyword : keywordList) {
+					sendMessage += keyword.getValue() + "\n";
+				}
+			} else {
+				sendMessage += "N/A" + "\n";
+			}
 			
 		} else {
 			sendMessage = MSG_NOT_DEFINE;
