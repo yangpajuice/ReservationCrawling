@@ -11,7 +11,6 @@ import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 
-import com.tistory.yangpajuice.rc.config.*;
 import com.tistory.yangpajuice.rc.constants.*;
 import com.tistory.yangpajuice.rc.item.*;
 import com.tistory.yangpajuice.rc.param.*;
@@ -29,19 +28,9 @@ public class ClienService implements IService {
 	
 	@Autowired
     private DbService dbService;
-	
-	private Map<String, ClienEventItem> prevItems;
-	
+
 	@PostConstruct
     private void init() {
-		prevItems = getClienItems();
-		Iterator<String> keys = prevItems.keySet().iterator();
-        while (keys.hasNext()) {
-            String key = keys.next();
-            ClienEventItem value = prevItems.get(key);
-            logger.info("ClienService.init() PrevItem = " + value.getDesc());
-        }
-        
         telegram.sendMessage(CodeConstants.SECT_ID_CLIEN, "Clien is initialized");
 	}
 
@@ -50,30 +39,23 @@ public class ClienService implements IService {
 		logger.info("#### ClienService is started #### ");
 		
 		try {
-			Map<String, ClienEventItem> clienItems = getClienItems();
+			ArrayList<WebPageItem> clienItems = getClienItems();
 			
-			Iterator<String> keys = clienItems.keySet().iterator();
-	        while (keys.hasNext()) {
-	            String key = keys.next();
-	            ClienEventItem value = clienItems.get(key);
-	        	if (prevItems.containsKey(key) == true) {
-	        		continue;
-	        	}
-	        	prevItems.put(key, value);
-	        	
-	        	String msg = "[Clien]\n";
-	        	msg += value.getDesc() + "\n";
-	        	msg += value.getUrl();
+			for (WebPageItem item : clienItems) {
+				String msg = "[Clien]\n";
+	        	msg += item.getMainCategory() + " " + item.getSubCategory() + "\n";
+	        	msg += item.getSubject();
+	        	msg += item.getUrl();
 	        	telegram.sendMessage(CodeConstants.SECT_ID_CLIEN, msg);
 	        	Thread.sleep(100);
-	        }
+			}
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);
 		}
 	}
 	
-	private Map<String, ClienEventItem> getClienItems() {
-		Map<String, ClienEventItem> rtnValue = new TreeMap<String, ClienEventItem>(Collections.reverseOrder());
+	private ArrayList<WebPageItem> getClienItems() {
+		ArrayList<WebPageItem> rtnValue = new ArrayList<WebPageItem>();
 		
 		try {
 			ConfigParam param = new ConfigParam();
@@ -91,8 +73,8 @@ public class ClienService implements IService {
 							.referrer("http://www.google.com").get();
 					
 					
-					Map<String, ClienEventItem> items = getClienItems(url, doc);
-					rtnValue.putAll(items);
+					ArrayList<WebPageItem> items = getClienItems(url, doc);
+					rtnValue.addAll(items);
 				}
 			}
 		} catch (Exception e) {
@@ -102,8 +84,8 @@ public class ClienService implements IService {
 		return rtnValue;
 	}
 	
-	private Map<String, ClienEventItem> getClienItems(String url, Document doc) {
-		Map<String, ClienEventItem> rtnValue = new TreeMap<String, ClienEventItem>(Collections.reverseOrder());
+	private ArrayList<WebPageItem> getClienItems(String url, Document doc) {
+		ArrayList<WebPageItem> rtnValue = new ArrayList<WebPageItem>();
 		
 		try {
 			if (doc == null) {
@@ -141,28 +123,10 @@ public class ClienService implements IService {
 				}
 
 				dbService.insertWebPageItem(webPageItem);
+				rtnValue.add(webPageItem);
 				
 				Thread.sleep(1000);
 			}
-			
-			String mainCategory = doc.selectFirst("div h2").text();
-			logger.info("Main Category = " + mainCategory);
-			
-			Elements elms = doc.select("span.list_subject");
-			for (Element elm : elms) {
-				String subject = elm.attr("title");
-				
-				Element subElm = elm.selectFirst("a");
-				String subUrl = subElm.attr("href");
-				
-				ClienEventItem clienEventItem = new ClienEventItem();
-				clienEventItem.setId(subUrl);
-				clienEventItem.setDesc(subject);
-				clienEventItem.setUrl(BASE_URL + subUrl);
-				
-				rtnValue.put(clienEventItem.getId(), clienEventItem);
-			}
-			
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);
 		}
