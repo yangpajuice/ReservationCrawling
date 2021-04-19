@@ -59,17 +59,17 @@ public class ClienBot extends TelegramLongPollingBot {
 		
 		String sendMessage = "";
 		if (receivedMessage.equals("/") == true || 
-				receivedMessage.toUpperCase().equals(MENU_HELP) == true) { // Help
+				receivedMessage.equals(MENU_HELP) == true) { // Help
 			sendMessage += "도움말 : " + MENU_HELP + "\n";
 			sendMessage += "알람추가 : " + MENU_ADD_ALARM + "\n";
 			sendMessage += "알람삭제 : " + MENU_REMOVE_ALARM + "\n";
 			sendMessage += "알람보기 : " + MENU_SHOW_ALARM + "\n";
 			
-		} else if (receivedMessage.toUpperCase().equals(MENU_ADD_ALARM) == true) {
+		} else if (receivedMessage.equals(MENU_ADD_ALARM) == true) {
 			
-		} else if (receivedMessage.toUpperCase().equals(MENU_REMOVE_ALARM) == true) {
+		} else if (receivedMessage.equals(MENU_REMOVE_ALARM) == true) {
 			
-		} else if (receivedMessage.toUpperCase().equals(MENU_SHOW_ALARM) == true) {
+		} else if (receivedMessage.equals(MENU_SHOW_ALARM) == true) {
 			ConfigParam param = new ConfigParam();
 			param.setSectId(CodeConstants.SECT_ID_CLIEN);
 			param.setKeyId(CodeConstants.KEY_ID_ALARM_MAINCATEGORY);
