@@ -13,4 +13,5 @@ public interface IConfigMapper {
 	public void createTable();
 	public List<ConfigItem> getConfigItemList(ConfigParam param);
 	public int insertConfigItem(ConfigItem item);
+	public int deleteConfigItem(ConfigItem item);
 }

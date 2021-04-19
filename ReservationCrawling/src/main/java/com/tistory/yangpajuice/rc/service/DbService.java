@@ -148,4 +148,17 @@ public class DbService {
 		
 		return rtnValue;
 	}
+	
+	public int deleteConfigItem(ConfigItem item) {
+		int rtnValue = 0;
+		
+		try {
+			rtnValue = configMapper.deleteConfigItem(item);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+		
+		return rtnValue;
+	}
 }

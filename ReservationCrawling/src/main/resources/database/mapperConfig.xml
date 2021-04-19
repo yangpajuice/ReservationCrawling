@@ -48,4 +48,11 @@
 		    #{sectId}, #{keyId}, #{seq}, #{value}
 	    )
 	</insert>
+	
+	<delete id="deleteConfigItem" parameterType="com.tistory.yangpajuice.rc.item.ConfigItem">
+	    DELETE RC_CONFIG
+	    WHERE SECT_ID = #{sectId}
+	    AND KEY_ID = #{keyId}
+	    AND VALUE = #{value}
+	</delete>
 </mapper>
