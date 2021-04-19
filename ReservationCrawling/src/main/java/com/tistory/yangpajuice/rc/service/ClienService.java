@@ -42,9 +42,8 @@ public class ClienService implements IService {
 			ArrayList<WebPageItem> clienItems = getClienItems();
 			
 			for (WebPageItem item : clienItems) {
-				String msg = "[Clien]\n";
-	        	msg += item.getMainCategory() + " " + item.getSubCategory() + "\n";
-	        	msg += item.getSubject();
+				String msg = "[Clien]" + item.getMainCategory() + " * " + item.getSubCategory() + "\n";
+	        	msg += item.getSubject() + "\n";
 	        	msg += item.getUrl();
 	        	telegram.sendMessage(CodeConstants.SECT_ID_CLIEN, msg);
 	        	Thread.sleep(100);
