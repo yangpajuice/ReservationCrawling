@@ -21,8 +21,8 @@ import com.tistory.yangpajuice.rc.service.*;
 public class ClienBot extends TelegramLongPollingBot {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final String MENU_HELP = "/HELP";
-	private final String MENU_ADD_ALARM = "/AddAlarm";
-	private final String MENU_REMOVE_ALARM = "/RemoveAlarm";
+	private final String MENU_ADD_KEYWORD = "/AddKeyword";
+	private final String MENU_REMOVE_KEYWORD = "/RemoveKeyWord";
 	private final String MENU_SHOW_ALARM = "/ShowAlarm";
 	private final String MSG_NOT_DEFINE = "무슨 말씀이신지 모르겠어요";
 	
@@ -59,17 +59,54 @@ public class ClienBot extends TelegramLongPollingBot {
 		
 		String sendMessage = "";
 		if (receivedMessage.equals("/") == true || 
-				receivedMessage.equals(MENU_HELP) == true) { // Help
+				receivedMessage.startsWith(MENU_HELP) == true) { // Help
 			sendMessage += "도움말 : " + MENU_HELP + "\n";
-			sendMessage += "알람추가 : " + MENU_ADD_ALARM + "\n";
-			sendMessage += "알람삭제 : " + MENU_REMOVE_ALARM + "\n";
-			sendMessage += "알람보기 : " + MENU_SHOW_ALARM + "\n";
+			sendMessage += "키워드추가 : " + MENU_ADD_KEYWORD + " [keyword]" + "\n";
+			sendMessage += "키워드삭제 : " + MENU_REMOVE_KEYWORD + " [keyword]" + "\n";
+			sendMessage += "설정보기 : " + MENU_SHOW_ALARM + "\n";
 			
-		} else if (receivedMessage.equals(MENU_ADD_ALARM) == true) {
+		} else if (receivedMessage.startsWith(MENU_ADD_KEYWORD) == true) {
+			String newKeyword = receivedMessage.split(MENU_ADD_KEYWORD)[0].trim();
+			if (newKeyword == null || newKeyword.length() == 0) {
+				sendMessage = "키워드를 입력해 주세요." + "\n";
+				
+			} else {
+				ConfigParam param = new ConfigParam();
+				param.setSectId(CodeConstants.SECT_ID_CLIEN);
+				param.setKeyId(CodeConstants.KEY_ID_ALARM_KEYWORD);
+				List<ConfigItem> keywordList = dbService.getConfigItemList(param);
+				int maxSeq = 1;
+				boolean existItem = false;
+				
+				if (keywordList != null && keywordList.size() > 0) {
+					for (ConfigItem keyword : keywordList) {
+						if (maxSeq < keyword.getSeq()) {
+							maxSeq = keyword.getSeq();
+						}
+						
+						if (newKeyword.toUpperCase().equals(keyword.getValue().toUpperCase()) == true) {
+							existItem = true;
+						}
+					}
+				}
+				
+				if (existItem == true) {
+					sendMessage = "키워드가 이미 있습니다." + "\n";
+					
+				} else {
+					ConfigItem newConfigItem = new ConfigItem();
+					newConfigItem.setSeq(maxSeq + 1);
+					newConfigItem.setSectId(CodeConstants.SECT_ID_CLIEN);
+					newConfigItem.setKeyId(CodeConstants.KEY_ID_ALARM_KEYWORD);
+					newConfigItem.setValue(newKeyword);
+					
+					dbService.insertConfigItem(newConfigItem);
+				}
+			}
 			
-		} else if (receivedMessage.equals(MENU_REMOVE_ALARM) == true) {
+		} else if (receivedMessage.startsWith(MENU_REMOVE_KEYWORD) == true) {
 			
-		} else if (receivedMessage.equals(MENU_SHOW_ALARM) == true) {
+		} else if (receivedMessage.startsWith(MENU_SHOW_ALARM) == true) {
 			ConfigParam param = new ConfigParam();
 			param.setSectId(CodeConstants.SECT_ID_CLIEN);
 			param.setKeyId(CodeConstants.KEY_ID_ALARM_MAINCATEGORY);
@@ -107,6 +144,7 @@ public class ClienBot extends TelegramLongPollingBot {
 		
 		try {
 			execute(message);
+			logger.info("message = " + message);
 		} catch (Exception e) {
 			
 		}

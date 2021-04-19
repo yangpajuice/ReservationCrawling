@@ -135,4 +135,17 @@ public class DbService {
 		
 		return rtnValue;
 	}
+	
+	public int insertConfigItem(ConfigItem item) {
+		int rtnValue = 0;
+		
+		try {
+			rtnValue = configMapper.insertConfigItem(item);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+		
+		return rtnValue;
+	}
 }

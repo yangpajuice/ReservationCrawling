@@ -37,4 +37,15 @@
 		</if>
 		ORDER BY SEQ
   	</select>
+  	
+  	<insert id="insertConfigItem" parameterType="com.tistory.yangpajuice.rc.item.ConfigItem">
+	    INSERT INTO RC_CONFIG
+	    (
+	    	SECT_ID, KEY_ID, SEQ ,VALUE
+    	)
+	    VALUES
+	    (
+		    #{sectId}, #{keyId}, #{seq}, #{value}
+	    )
+	</insert>
 </mapper>
