@@ -88,7 +88,8 @@ public class PpomppuService implements IService {
 			String curMaxId = dbService.getMaxIdWebPageItem(param);
 			logger.info("Max ID = " + curMaxId);
 			
-			Elements elements = doc.getElementsByClass("bbs_list_thumbnail");
+			Elements elements = doc.getElementsByClass("bbsList_new");
+			elements = elements.get(0).getElementsByClass("none-border");
 			for (Element elm : elements) {
 				String baseUrl = elm.baseUri();
 				baseUrl = baseUrl.split("bbs_list")[0];
@@ -151,16 +152,22 @@ public class PpomppuService implements IService {
 				String tmp = elmsSubCategory.get(0).text(); // ex) 식품/건강 | 2021-04-22 11:05
 				String[] tmpList = tmp.split("\\|");
 				
-				if (tmpList.length > 0) {
-					String subCategory = tmpList[0].trim();
-					webPageItem.setSubCategory(subCategory);
-				}
-				
-				if (tmpList.length > 1) {
-					String postDate = tmpList[1].trim(); // ex) 2021-04-22 11:05
-					postDate = StrUtil.toDateFormat("yyyy-MM-dd HH:mm", "yyyyMMddHHmmss", postDate);
+				for (int i = 0; i < tmpList.length; i++) {
+					String tmpItem = tmpList[i].trim();
 					
-					webPageItem.setPostDate(postDate);
+					if (i == (tmpList.length - 1)) { // 마지막은 날짜 ex) 2021-04-22 11:05
+						String postDate = tmpItem;
+						postDate = StrUtil.toDateFormat("yyyy-MM-dd HH:mm", "yyyyMMddHHmmss", postDate);
+						webPageItem.setPostDate(postDate);
+						
+					} else {
+						String subCategory = tmpItem;
+						if (webPageItem.getSubCategory() == null || webPageItem.getSubCategory().length() == 0) {
+							webPageItem.setSubCategory(subCategory);
+						} else {
+							webPageItem.setSubCategory(webPageItem.getSubCategory() + " | " + subCategory);
+						}
+					}
 				}
 			}
 
@@ -175,7 +182,7 @@ public class PpomppuService implements IService {
 			}
 			
 			Elements elmsLink = doc.getElementsByClass("noeffect");
-			if (elmsLink != null) {
+			if (elmsLink != null && elmsLink.size() > 0) {
 				String link = elmsLink.get(0).attr("href");
 				webPageItem.setLink(link);
 			}
