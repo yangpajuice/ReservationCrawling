@@ -30,11 +30,15 @@ public class CrawlingScheduler {
 	
 	@Autowired
 	private ClienService clienService;
+	
+	@Autowired
+	private PpomppuService ppomppuService;
 
 	@PostConstruct
     private void init() {
 		registerTelegramBot();
 		
+		Ppomppu();
 		CampingSchuduler();
 		HardKernel();
 		Clien();
@@ -72,5 +76,10 @@ public class CrawlingScheduler {
 	@Scheduled(cron = "0 0/2 * * * *") // 2분마다, 0초에
 	public void Clien() {
 		clienService.start();
+	}
+	
+	@Scheduled(cron = "0 0/2 * * * *") // 2분마다, 0초에
+	public void Ppomppu() {
+		ppomppuService.start();
 	}
 }

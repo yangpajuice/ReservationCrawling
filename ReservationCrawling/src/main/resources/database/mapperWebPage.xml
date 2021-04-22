@@ -34,7 +34,7 @@
 			SUBJECT VARCHAR(300),
 			ARTICLE CLOB,
 			LINK VARCHAR(300),
-			USER_ID VARCHAR(20),
+			USER_ID VARCHAR(50),
 			INSERTED_DATE DATE
 		)
 	</insert>
@@ -55,7 +55,13 @@
 	<select id="getMaxIdWebPageItem" resultType="String" parameterType="com.tistory.yangpajuice.rc.param.WebPageParam" >
 		SELECT MAX(ID)
 		FROM RC_WEBPAGE
-		WHERE URL LIKE #{url}||'%'
+		WHERE 1 = 1
+		<if test="url != null and url != '' " >
+			AND URL LIKE #{url}||'%'
+		</if>
+		<if test="mainCategory != null and mainCategory != '' " >
+			AND MAIN_CATEGORY = #{mainCategory}
+		</if>
   	</select>
   	
   	<select id="getWebPageItemList" resultMap="resultWebPageItem" parameterType="com.tistory.yangpajuice.rc.param.WebPageParam" >

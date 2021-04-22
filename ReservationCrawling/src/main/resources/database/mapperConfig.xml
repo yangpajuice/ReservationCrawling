@@ -9,6 +9,8 @@
 	    <result property="keyId" column="KEY_ID" />
 	    <result property="seq" column="SEQ" />
 	    <result property="value" column="VALUE" />
+	    <result property="value2" column="VALUE2" />
+	    <result property="value3" column="VALUE3" />
 	</resultMap>
 	
 	<select id="checkTableExists" resultType="int">
@@ -23,13 +25,15 @@
 			KEY_ID VARCHAR(20) NOT NULL,
 			SEQ NUMBER(11) NOT NULL,
 			VALUE VARCHAR(300) NOT NULL,
+			VALUE2 VARCHAR(300),
+			VALUE3 VARCHAR(300),
 			
 			CONSTRAINT RC_CONFIG_PK PRIMARY KEY(SECT_ID, KEY_ID, SEQ)
 		)
 	</insert>
 	
 	<select id="getConfigItemList" resultMap="resultConfigItem" parameterType="com.tistory.yangpajuice.rc.param.ConfigParam" >
-		SELECT SECT_ID, KEY_ID, SEQ, VALUE 
+		SELECT SECT_ID, KEY_ID, SEQ, VALUE, VALUE2, VALUE3
 		FROM RC_CONFIG
 		WHERE SECT_ID = #{sectId}
 		<if test="keyId != null and keyId != '' " >
@@ -41,7 +45,7 @@
   	<insert id="insertConfigItem" parameterType="com.tistory.yangpajuice.rc.item.ConfigItem">
 	    INSERT INTO RC_CONFIG
 	    (
-	    	SECT_ID, KEY_ID, SEQ ,VALUE
+	    	SECT_ID, KEY_ID, SEQ ,VALUE, VALUE2, VALUE3
     	)
 	    VALUES
 	    (
