@@ -38,6 +38,10 @@ public class PpomppuService implements IService {
 		
 		try {
 			ArrayList<WebPageItem> items = getPpomppuItems();
+			for (WebPageItem item : items) {
+				telegram.sendMessage(CodeConstants.SECT_ID_PPOMPPU, item);
+				Thread.sleep(100);
+			}
 			
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);

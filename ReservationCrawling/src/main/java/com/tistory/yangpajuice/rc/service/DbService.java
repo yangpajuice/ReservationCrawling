@@ -161,4 +161,17 @@ public class DbService {
 		
 		return rtnValue;
 	}
+	
+	public int updateConfigItem(ConfigItem item) {
+		int rtnValue = 0;
+		
+		try {
+			rtnValue = configMapper.updateConfigItem(item);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+		
+		return rtnValue;
+	}
 }

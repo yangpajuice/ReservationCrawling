@@ -18,9 +18,9 @@ import com.tistory.yangpajuice.rc.service.telegrambot.*;
 public class CrawlingScheduler {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	TelegramBotsApi telegramBotsApi = null;
-	
+
 	@Autowired
-	private ClienBot clienBot;
+	private List<TelegramBot> telegramBotList;
 
 	@Autowired
 	private List<CampingService> campingServiceList;
@@ -49,8 +49,11 @@ public class CrawlingScheduler {
 		try {
 			telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
 
-			telegramBotsApi.registerBot(clienBot);
-			logger.info("ClienBot is added.");
+			for (TelegramBot telegramBot : telegramBotList) {
+				telegramBotsApi.registerBot(telegramBot);
+				logger.info(telegramBot.getClass().getSimpleName() + " is added.");
+			}
+			
 			
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);

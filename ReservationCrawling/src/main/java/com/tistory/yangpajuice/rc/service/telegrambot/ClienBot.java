@@ -18,7 +18,7 @@ import com.tistory.yangpajuice.rc.param.*;
 import com.tistory.yangpajuice.rc.service.*;
 
 @Component
-public class ClienBot extends TelegramLongPollingBot {
+public class ClienBot extends TelegramBot {
 	public enum ClienMode {
 		NONE,
 		ADD_KEYWORD,
