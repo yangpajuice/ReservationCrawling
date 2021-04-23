@@ -30,7 +30,7 @@ public class HardKernelService implements IService {
 
 	@PostConstruct
 	private void init() {
-		telegram.sendMessage(CodeConstants.SECT_ID_HARDKERNEL, "HardKernel is initialized");
+		telegram.sendSystemMessage(CodeConstants.SECT_ID_HARDKERNEL, "HardKernel is initialized");
 	}
 
 	@Override

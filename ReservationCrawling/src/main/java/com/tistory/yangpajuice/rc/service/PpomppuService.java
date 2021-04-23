@@ -29,7 +29,7 @@ public class PpomppuService implements IService {
 	
 	@PostConstruct
     private void init() {
-        telegram.sendMessage(CodeConstants.SECT_ID_PPOMPPU, "Ppomppu is initialized");
+        telegram.sendSystemMessage(CodeConstants.SECT_ID_PPOMPPU, "Ppomppu is initialized");
 	}
 	
 	@Override

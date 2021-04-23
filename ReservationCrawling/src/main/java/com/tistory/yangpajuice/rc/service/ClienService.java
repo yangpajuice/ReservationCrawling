@@ -31,7 +31,7 @@ public class ClienService implements IService {
 
 	@PostConstruct
     private void init() {
-        telegram.sendMessage(CodeConstants.SECT_ID_CLIEN, "Clien is initialized");
+        telegram.sendSystemMessage(CodeConstants.SECT_ID_CLIEN, "Clien is initialized");
 	}
 
 	@Override
@@ -40,55 +40,11 @@ public class ClienService implements IService {
 		
 		try {
 			ArrayList<WebPageItem> clienItems = getClienItems();
-			
-			ConfigParam param = new ConfigParam();
-			param.setSectId(CodeConstants.SECT_ID_CLIEN);
-			param.setKeyId(CodeConstants.KEY_ID_ALARM_MAINCATEGORY);
-			List<ConfigItem> mainCategoryList = dbService.getConfigItemList(param);
-			
-			param = new ConfigParam();
-			param.setSectId(CodeConstants.SECT_ID_CLIEN);
-			param.setKeyId(CodeConstants.KEY_ID_ALARM_KEYWORD);
-			List<ConfigItem> keywordList = dbService.getConfigItemList(param);
-			
 			for (WebPageItem item : clienItems) {
-				if (mainCategoryList != null && mainCategoryList.size() > 0) {
-					boolean isMainCategory = false;
-					for (ConfigItem mainCategory : mainCategoryList) {
-						if (item.getMainCategory().equals(mainCategory.getValue()) == true) {
-							isMainCategory = true;
-						}
-					}
-					
-					if (isMainCategory == false) {
-						logger.info("[MainCategory] skip to send message = " + item.getUrl());
-						continue;
-					}
-				}
-				
-				if (keywordList != null && keywordList.size() > 0) {
-					boolean isKeyword = false;
-					for (ConfigItem keyword : keywordList) {
-						String subject = item.getSubject().toUpperCase();
-						String kwd = keyword.getValue().toUpperCase();
-						
-						if (subject.contains(kwd) == true) {
-							isKeyword = true;
-						}
-					}
-					
-					if (isKeyword == false) {
-						logger.info("[Keyword] skip to send message = " + item.getUrl());
-						continue;
-					}
-				}
-				
-				String msg = "[Clien] " + item.getMainCategory() + " * " + item.getSubCategory() + "\n" + "\n";
-	        	msg += item.getSubject() + "\n" + "\n";
-	        	msg += item.getUrl();
-	        	telegram.sendMessage(CodeConstants.SECT_ID_CLIEN, msg);
-	        	Thread.sleep(100);
+				telegram.sendMessage(CodeConstants.SECT_ID_CLIEN, item);
+				Thread.sleep(100);
 			}
+
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);
 		}
