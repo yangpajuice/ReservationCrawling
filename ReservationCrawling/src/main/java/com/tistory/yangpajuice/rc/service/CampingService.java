@@ -42,8 +42,9 @@ public abstract class CampingService implements IService {
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);
 		}
+		
 		logger.info("Initialized");
-		sendTelegramMessage(getSiteName() + " is initialized");
+		telegram.sendSystemMessage(CodeConstants.SECT_ID_CAMP, getSiteName() + " is initialized");
 	}
 	
 	private List<String> reservationDateList() {
@@ -76,8 +77,10 @@ public abstract class CampingService implements IService {
 			if (configItemList != null && configItemList.size() > 0) {
 				for (ConfigItem configItem : configItemList) {
 					if (configItem.getValue().equals(getSiteName()) == true) {
-						telegram.sendMessage(CodeConstants.SECT_ID_CAMP, text);
-						break;
+						if (configItem.getValue2().equals(CodeConstants.YES) == true) {
+							telegram.sendMessage(CodeConstants.SECT_ID_CAMP, text);
+							break;
+						}
 					}
 				}
 			}

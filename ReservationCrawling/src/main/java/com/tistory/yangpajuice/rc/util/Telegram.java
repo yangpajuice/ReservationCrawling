@@ -64,7 +64,7 @@ public class Telegram {
 		
 		for (ConfigItem configItem : configItemList) {
 			if (configItem.getValue2().equals(item.getMainCategory()) == true) {
-				if (configItem.getValue3().equals("Y") == true) {
+				if (configItem.getValue3().equals(CodeConstants.YES) == true) {
 					rtnValue = true;
 					break;
 				}
