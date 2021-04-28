@@ -2,6 +2,7 @@ package com.tistory.yangpajuice.rc.constants;
 
 public class CodeConstants {
 	public static final String YES = "Y";
+	public static final String ALL = "*";
 	
 	public static final String SECT_ID_SYSTEM = "SYSTEM";
 	public static final String SECT_ID_CAMP = "CAMP";

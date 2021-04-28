@@ -96,6 +96,11 @@ public class Telegram {
 					rtnKeyword = kwd;
 					break;
 				}
+				
+				if (kwd.equals(CodeConstants.ALL) == true) {
+					rtnKeyword = kwd;
+					break;
+				}
 			}
 		}
 		
