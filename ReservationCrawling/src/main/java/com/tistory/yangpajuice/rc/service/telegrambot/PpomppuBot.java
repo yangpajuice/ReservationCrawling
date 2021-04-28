@@ -7,6 +7,9 @@ import org.springframework.stereotype.*;
 import org.telegram.telegrambots.meta.api.methods.send.*;
 import org.telegram.telegrambots.meta.api.objects.*;
 
+import com.tistory.yangpajuice.rc.constants.*;
+import com.tistory.yangpajuice.rc.service.telegrambot.ClienBot.*;
+
 @Component
 public class PpomppuBot extends TelegramBot {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -26,6 +29,9 @@ public class PpomppuBot extends TelegramBot {
 		if (receivedMessage.equals(MENU_START) == true) {
 			updateChatId(chatId);
 			sendMessage = "ChatID ▶ " + chatId;
+			
+		} else if (receivedMessage.startsWith(MENU_SHOW_ALARM) == true) {
+			sendMessage = getConfig(CodeConstants.SECT_ID_PPOMPPU);
 		}
 		
 		SendMessage message = new SendMessage();

@@ -15,7 +15,8 @@ import com.tistory.yangpajuice.rc.service.*;
 public abstract class TelegramBot extends TelegramLongPollingBot implements IBot {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	protected final String MENU_START = "/start"; 
+	protected final String MENU_START = "/start";
+	protected final String MENU_SHOW_ALARM = "/ShowAlarm";
 	
 	protected TelegramConfig telegramConfig;
 	
@@ -88,5 +89,54 @@ public abstract class TelegramBot extends TelegramLongPollingBot implements IBot
 		}
 		
 		return rtnValue;
+	}
+	
+	public String getConfig(String sectId) {
+		String sendMessage = "";
+		
+		ConfigParam param = new ConfigParam();
+		param.setSectId(CodeConstants.SECT_ID_SYSTEM);
+		param.setKeyId(CodeConstants.KEY_ID_ALARM_KEYWORD);
+		List<ConfigItem> systemKeywordList = dbService.getConfigItemList(param);
+		sendMessage = "[System Keyword]" + "\n";
+		if (systemKeywordList != null && systemKeywordList.size() > 0) {
+			for (ConfigItem systemKeyword : systemKeywordList) {
+				sendMessage += systemKeyword.getValue() + "\n";
+			}
+		} else {
+			sendMessage += "N/A" + "\n";
+		}
+		sendMessage += "\n";
+		
+		param = new ConfigParam();
+		param.setSectId(sectId);
+		param.setKeyId(CodeConstants.KEY_ID_ALARM_KEYWORD);
+		List<ConfigItem> keywordList = dbService.getConfigItemList(param);
+		sendMessage += "[Keyword]" + "\n";
+		if (keywordList != null && keywordList.size() > 0) {
+			for (ConfigItem keyword : keywordList) {
+				sendMessage += keyword.getValue() + "\n";
+			}
+		} else {
+			sendMessage += "N/A" + "\n";
+		}
+		sendMessage += "\n";
+		
+		param = new ConfigParam();
+		param.setSectId(sectId);
+		param.setKeyId(CodeConstants.KEY_ID_URL);
+		List<ConfigItem> urlList = dbService.getConfigItemList(param);
+		sendMessage += "[Category]" + "\n";
+		if (urlList != null && urlList.size() > 0) {
+			for (ConfigItem url : urlList) {
+				if (url.getValue3().equals(CodeConstants.YES) == true) {
+					sendMessage += url.getValue2() + "\n";
+				}
+			}
+		} else {
+			sendMessage += "N/A" + "\n";
+		}
+		
+		return sendMessage;
 	}
 }

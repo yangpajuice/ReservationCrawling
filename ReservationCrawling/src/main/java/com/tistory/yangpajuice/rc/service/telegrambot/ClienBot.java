@@ -31,7 +31,6 @@ public class ClienBot extends TelegramBot {
 	private final String MENU_HELP = "/HELP";
 	private final String MENU_ADD_KEYWORD = "/AddKeyword";
 	private final String MENU_REMOVE_KEYWORD = "/RemoveKeyWord";
-	private final String MENU_SHOW_ALARM = "/ShowAlarm";
 	private final String MSG_NOT_DEFINE = "무슨 말씀이신지 모르겠어요";
 	
 	private TelegramConfig telegramConfig;
@@ -67,7 +66,11 @@ public class ClienBot extends TelegramBot {
 		
 		String sendMessage = "";
 		if (receivedMessage.startsWith("/") == true) { // 메뉴 처리
-			if (receivedMessage.equals("/") == true || receivedMessage.startsWith(MENU_HELP) == true) { // Help
+			if (receivedMessage.equals(MENU_START) == true) {
+				updateChatId(chatId);
+				sendMessage = "ChatID ▶ " + chatId;
+				
+			} else if (receivedMessage.equals("/") == true || receivedMessage.startsWith(MENU_HELP) == true) { // Help
 				mode = ClienMode.NONE;
 				sendMessage = getHelpMessage();
 				
@@ -81,7 +84,7 @@ public class ClienBot extends TelegramBot {
 				
 			} else if (receivedMessage.startsWith(MENU_SHOW_ALARM) == true) {
 				mode = ClienMode.NONE;
-				sendMessage = getConfig();
+				sendMessage = getConfig(CodeConstants.SECT_ID_CLIEN);
 				
 			} else {
 				mode = ClienMode.NONE;
@@ -181,39 +184,6 @@ public class ClienBot extends TelegramBot {
 		sendMessage += "키워드추가 : " + MENU_ADD_KEYWORD + "\n";
 		sendMessage += "키워드삭제 : " + MENU_REMOVE_KEYWORD + "\n";
 		sendMessage += "설정보기 : " + MENU_SHOW_ALARM + "\n";
-		
-		return sendMessage;
-	}
-	
-	public String getConfig() {
-		String sendMessage = "";
-		
-		ConfigParam param = new ConfigParam();
-//		param.setSectId(CodeConstants.SECT_ID_CLIEN);
-//		param.setKeyId(CodeConstants.KEY_ID_ALARM_MAINCATEGORY);
-//		List<ConfigItem> mainCategoryList = dbService.getConfigItemList(param);
-//		sendMessage = "[Main Category]" + "\n";
-//		if (mainCategoryList != null && mainCategoryList.size() > 0) {
-//			for (ConfigItem mainCategory : mainCategoryList) {
-//				sendMessage += mainCategory.getValue() + "\n";
-//			}
-//		} else {
-//			sendMessage += "N/A" + "\n";
-//		}
-//		sendMessage += "\n";
-		
-		param = new ConfigParam();
-		param.setSectId(CodeConstants.SECT_ID_CLIEN);
-		param.setKeyId(CodeConstants.KEY_ID_ALARM_KEYWORD);
-		List<ConfigItem> keywordList = dbService.getConfigItemList(param);
-		sendMessage += "[Keyword]" + "\n";
-		if (keywordList != null && keywordList.size() > 0) {
-			for (ConfigItem keyword : keywordList) {
-				sendMessage += keyword.getValue() + "\n";
-			}
-		} else {
-			sendMessage += "N/A" + "\n";
-		}
 		
 		return sendMessage;
 	}
