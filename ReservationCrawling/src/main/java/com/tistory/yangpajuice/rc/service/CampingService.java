@@ -172,7 +172,12 @@ public abstract class CampingService implements IService {
 							// completed/waiting ==> available
 							if (campingItem.getState().equals(CampingState.AVAILABLE) == true) {
 								logger.info("[" + key + "] available = " + campingItem.toString());
-								sendTelegramMessage("▶ " + getSiteName() + " available : " + dateDesc + " " + campingItem.toString());
+								
+								String msg = "▶ " + getSiteName() + " " + campingItem.getState() + "\n";
+								msg += "Date : " + dateDesc + "\n";
+								msg += "\n";
+								msg += getDefaultUrl();
+								sendTelegramMessage(msg);
 							}
 						}
 					}
