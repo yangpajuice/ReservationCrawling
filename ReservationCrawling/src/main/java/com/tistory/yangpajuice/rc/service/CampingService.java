@@ -175,6 +175,7 @@ public abstract class CampingService implements IService {
 								
 								String msg = "▶ " + getSiteName() + " " + campingItem.getState() + "\n";
 								msg += "Date : " + dateDesc + "\n";
+								msg += "Area : " + campingItem.getArea() + " " + campingItem.getNo() + "\n";
 								msg += "\n";
 								msg += getDefaultUrl();
 								sendTelegramMessage(msg);
