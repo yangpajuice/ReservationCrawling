@@ -165,7 +165,7 @@ public abstract class CampingService implements IService {
 				logger.info("reservationDate = " + dateString);
 				
 				Calendar cal = StrUtil.toCalendarFormat(DATE_FORMAT, dateString);
-				Calendar calNow = Calendar.getInstance();
+				Calendar calNow = StrUtil.toCalendarFormat(DATE_FORMAT, StrUtil.getCurDate()); //Calendar.getInstance();
 				if (cal.before(calNow) == true) {
 					logger.info("reservationDate is over = " + dateString);
 					continue;

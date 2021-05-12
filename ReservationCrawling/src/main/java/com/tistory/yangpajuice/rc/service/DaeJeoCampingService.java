@@ -13,7 +13,7 @@ import com.tistory.yangpajuice.rc.util.*;
 @Service
 public class DaeJeoCampingService extends CampingService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private final String URL = "https://www.daejeocamping.com/Camp.mobiz?camptype=camp01";
+	private final String URL = "https://www.daejeocamping.com/reservation/real_time";
 	private final String SITE_NAME = "DaeJeoCamping";
 	
 	@Override
@@ -38,7 +38,7 @@ public class DaeJeoCampingService extends CampingService {
 	@Override
 	protected Map<String, CampingItem> getCampingItemMap(Document doc) throws Exception {
 		Map<String, CampingItem> campingItemMap = new HashMap<>();
-		Elements elms = doc.select("fieldset.ui-area");
+		Elements elms = doc.select("a.cbtn");
 		for (Element elm : elms) {
 			CampingItem campingItem = getCampingItem(elm);
 			if (campingItem == null) {
@@ -54,30 +54,37 @@ public class DaeJeoCampingService extends CampingService {
 	
 	private CampingItem getCampingItem(Element elm) throws Exception {
 		CampingItem campingItem = new CampingItem();
-		campingItem.setState(CampingState.AVAILABLE);
+		campingItem.setState(CampingState.UNKNOWN);
 		
-		String[] clazzList = elm.attr("class").split("ui-");
-		for (String clazz : clazzList) {
-			clazz = clazz.trim();
-			if (clazz.startsWith("type") == true) { // ex) type-A
-				String area = clazz.substring(clazz.length() - 1, clazz.length());
-				campingItem.setArea(area);
-				
-			} else if (clazz.startsWith("state-comp") == true) {
-				campingItem.setState(CampingState.COMPLETED);
-				
-			} else if (clazz.startsWith("state-wait") == true) {
-				campingItem.setState(CampingState.WAITING);
-				
-			} else if (clazz.startsWith("state-none") == true) {
-				campingItem.setState(CampingState.NONE);
-			}
+		Elements tmpElms = elm.getElementsByClass("sitetype");
+		if (tmpElms.size() > 0) {
+			String siteType = tmpElms.get(0).attr("value");
+			campingItem.setArea(siteType);
 		}
 		
-		Elements labelElms = elm.select("label");
-		String no = labelElms.text();
-		campingItem.setNo(no);
+		String number = elm.text();
+		campingItem.setNo(number);
 		
+		String[] clazzList = elm.attr("class").split(" ");
+		for (String clazz : clazzList) {
+			clazz = clazz.trim();
+			
+			if (clazz.equals("cbtn_112") == true) { // D-52 데이터가 중복으로 나옴. 중복된 데이터는 무시
+				return null;
+			}
+			
+			if (clazz.startsWith("cbtn_on") == true) {
+				campingItem.setState(CampingState.AVAILABLE);
+				
+			} else if (clazz.startsWith("cbtn_Pcomplete") == true) {
+				campingItem.setState(CampingState.COMPLETED);
+				
+			} else if (clazz.startsWith("cbtn_Pwaiting") == true) {
+				campingItem.setState(CampingState.WAITING);
+				
+			}
+		}
+
 		return campingItem;
 	}
 }
