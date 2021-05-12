@@ -4,6 +4,16 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.tistory.yangpajuice.rc.mapper.ICampingMapper">
+	<resultMap id="resultCampingItem" type="com.tistory.yangpajuice.rc.item.CampingItem">
+	    <result property="site" column="SITE" />
+	    <result property="seq" column="SEQ" />
+	    <result property="reservatinDate" column="RESERVATION_DATE" />
+	    <result property="area" column="AREA" />
+	    <result property="no" column="NO" />
+	    <result property="stateDesc" column="STATE" />
+	    <result property="insertedDate" column="INSERTED_DATE" />
+	</resultMap>
+
 	<select id="checkTableExists" resultType="int">
 	<![CDATA[
 	    SELECT COUNT(*) FROM USER_TABLES WHERE TABLE_NAME = 'RC_CAMPING'
@@ -21,6 +31,30 @@
 			INSERTED_DATE DATE
 		)
 	</insert>
+	
+	<select id="getCampingItemList" resultMap="resultCampingItem" parameterType="com.tistory.yangpajuice.rc.param.CampingParam" >
+	<![CDATA[
+	    SELECT SITE, SEQ
+		, TO_CHAR(RESERVATION_DATE, 'YYYYMMDD') AS RESERVATION_DATE
+		, AREA
+		, NO
+		, STATE
+		, TO_CHAR(INSERTED_DATE, 'YYYYMMDDHH24MISS') AS INSERTED_DATE
+	    FROM RC_CAMPING
+	    WHERE SITE = #{site}
+	    AND SEQ = #{seq}
+	    AND RESERVATION_DATE = TO_DATE(#{reservatinDate}, 'YYYYMMDD')
+	]]>
+	</select>
+	
+	<update id="increaseSeqCampingItem" parameterType="com.tistory.yangpajuice.rc.item.CampingItem">
+		UPDATE RC_CAMPING
+		SET SEQ = SEQ + 1
+		WHERE SITE = #{site}
+		AND RESERVATION_DATE = TO_DATE(#{reservatinDate}, 'YYYYMMDD')
+		AND AREA = #{area}
+		AND NO = #{no}
+	</update>
 	
 	<insert id="insertCampingItem" parameterType="com.tistory.yangpajuice.rc.item.CampingItem">
 	    INSERT INTO RC_CAMPING
