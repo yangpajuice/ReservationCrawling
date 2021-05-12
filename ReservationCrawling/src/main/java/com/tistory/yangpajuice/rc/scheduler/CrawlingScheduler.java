@@ -38,8 +38,8 @@ public class CrawlingScheduler {
     private void init() {
 		registerTelegramBot();
 		
-		Ppomppu();
 		CampingSchuduler();
+		Ppomppu();
 		HardKernel();
 		Clien();
 	}

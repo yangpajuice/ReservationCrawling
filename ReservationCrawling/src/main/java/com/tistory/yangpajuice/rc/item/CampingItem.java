@@ -63,7 +63,15 @@ public class CampingItem implements IDataItem {
 
 	public void setState(CampingState state) {
 		this.state = state;
-		this.stateDesc = state.toString();
+		setStateDesc(state.toString());
+	}
+	
+	public String getStateDesc() {
+		return stateDesc;
+	}
+
+	public void setStateDesc(String stateDesc) {
+		this.stateDesc = stateDesc;
 	}
 
 	public String getReservatinDate() {

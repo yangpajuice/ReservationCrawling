@@ -9,7 +9,6 @@ import org.jsoup.nodes.*;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 
-import com.tistory.yangpajuice.rc.config.*;
 import com.tistory.yangpajuice.rc.constants.*;
 import com.tistory.yangpajuice.rc.item.*;
 import com.tistory.yangpajuice.rc.param.*;
@@ -20,7 +19,7 @@ public abstract class CampingService implements IService {
 	private final String userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36";
 	private final String DATE_FORMAT = "yyyyMMdd";
 	private final int MAX_DAYS = 31;
-	private Map<String, Map<String, CampingItem>> cacheCampingItemDateMap = null;
+//	private Map<String, Map<String, CampingItem>> cacheCampingItemDateMap = null;
 	
 	@Autowired
 	protected Telegram telegram;
@@ -37,7 +36,7 @@ public abstract class CampingService implements IService {
     private void init() {
 		
 		try {
-			cacheCampingItemDateMap = getCampingItemDateMap();
+//			cacheCampingItemDateMap = getCampingItemDateMap();
 			
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);
@@ -47,17 +46,42 @@ public abstract class CampingService implements IService {
 		telegram.sendSystemMessage(CodeConstants.SECT_ID_CAMP, getSiteName() + " is initialized");
 	}
 	
-	private List<String> reservationDateList() {
-		List<String> rtnList = new ArrayList<String>();
+	private List<Calendar> reservationDateList() {
+		List<Calendar> rtnList = new ArrayList<Calendar>();
 		
 		try {
+			List<String> dateList = new ArrayList<String>();
 			ConfigParam param = new ConfigParam();
 			param.setSectId(CodeConstants.SECT_ID_CAMP);
 			param.setKeyId(CodeConstants.KEY_ID_DATE);
 			List<ConfigItem> configItemList = dbService.getConfigItemList(param);
 			if (configItemList != null && configItemList.size() > 0) {
 				for (ConfigItem configItem : configItemList) {
-					rtnList.add(configItem.getValue());
+					dateList.add(configItem.getValue());
+				}
+			}
+			
+			if (dateList == null || dateList.size() == 0) { // 설정이 없는 경우 31일 조회
+				int days = 0;
+				while (days < MAX_DAYS) {
+					Calendar cal = Calendar.getInstance();
+					cal.add(Calendar.DAY_OF_YEAR, days);
+					rtnList.add(cal);
+					
+					days++;
+				}
+			} else { // 설정이 있는 경우 설정일만 조회
+				for (String dateString : dateList) {
+					logger.info("reservationDate = " + dateString);
+					
+					Calendar cal = StrUtil.toCalendarFormat(DATE_FORMAT, dateString);
+					Calendar calNow = StrUtil.toCalendarFormat(DATE_FORMAT, StrUtil.getCurDate()); //Calendar.getInstance();
+					if (cal.before(calNow) == true) {
+						logger.info("reservationDate is over = " + dateString);
+						continue;
+					}
+					
+					rtnList.add(cal);
 				}
 			}
 			
@@ -90,50 +114,65 @@ public abstract class CampingService implements IService {
 		}
 	}
 	
-	private void removeOldCacheData() throws Exception {
-		// remove old data
-		Calendar yesterdayCal = Calendar.getInstance();
-		yesterdayCal.add(Calendar.DAY_OF_YEAR, -1);
-		String parsedDate = StrUtil.toDateFormat(DATE_FORMAT, yesterdayCal);
-		if (cacheCampingItemDateMap.remove(parsedDate) != null) {
-			logger.info("removed date = " + parsedDate);
-		}
-	}
+//	private void removeOldCacheData() throws Exception {
+//		// remove old data
+//		Calendar yesterdayCal = Calendar.getInstance();
+//		yesterdayCal.add(Calendar.DAY_OF_YEAR, -1);
+//		String parsedDate = StrUtil.toDateFormat(DATE_FORMAT, yesterdayCal);
+//		if (cacheCampingItemDateMap.remove(parsedDate) != null) {
+//			logger.info("removed date = " + parsedDate);
+//		}
+//	}
 	
 	@Override
 	public void start() {
 		logger.info("START");
 		
 		try {
-			removeOldCacheData();
+//			removeOldCacheData();
 			
-			Map<String, Map<String, CampingItem>> campingItemDateMap = getCampingItemDateMap();
-			for (String key : campingItemDateMap.keySet()) {
+			Map<String, Map<String, CampingItem>> campingItemDateMapFromWeb = getCampingItemDateMapFromWeb();
+			Map<String, Map<String, CampingItem>> campingItemDateMapFromDb = getCampingItemDateMapFromDb();
+			
+			for (String key : campingItemDateMapFromWeb.keySet()) {
 				String dateDesc = StrUtil.toDateFormat(DATE_FORMAT, "yyyy-MM-dd EEE", key);
-				Map<String, CampingItem> campingItemMap = campingItemDateMap.get(key);
-				Map<String, CampingItem> cacheCampingItemMap = cacheCampingItemDateMap.get(key);
+				Map<String, CampingItem> campingItemMap = campingItemDateMapFromWeb.get(key);
+				Map<String, CampingItem> cacheCampingItemMap = campingItemDateMapFromDb.get(key);
 				
-				if (cacheCampingItemMap == null) {
-					cacheCampingItemDateMap.put(key, campingItemMap);
+				if (cacheCampingItemMap == null || cacheCampingItemMap.size() == 0) { // new
+					for (String mapKey : campingItemMap.keySet()) {
+						CampingItem campingItem = campingItemMap.get(mapKey);
+						campingItem.setInsertedDate(StrUtil.getCurDateTime());
+						dbService.insertCampingItem(campingItem);
+					}
+
 					logger.info("new date = " + key);
-					sendTelegramMessage("*** " + getSiteName() + " Open Date : " + dateDesc);
+					sendTelegramMessage("▷ " + getSiteName() + " Open Date : " + dateDesc);
 					
 				} else {
 					for (String itemKey : campingItemMap.keySet()) {
 						CampingItem campingItem = campingItemMap.get(itemKey);
 						CampingItem cacheCampingItem = cacheCampingItemMap.get(itemKey);
 						
-						// replace data
-						cacheCampingItemMap.remove(itemKey);
-						cacheCampingItemMap.put(itemKey, campingItem);
-						
+						if (cacheCampingItem.getState().equals(campingItem.getState()) == false) { // 기존 데이터 백업. 새 데이터 추가
+							CampingParam param = new CampingParam();
+							param.setSite(campingItem.getSite());
+							param.setReservatinDate(campingItem.getReservatinDate());
+							param.setArea(campingItem.getArea());
+							param.setNo(campingItem.getNo());
+							dbService.increaseSeqCampingItem(param);
+							
+							campingItem.setInsertedDate(StrUtil.getCurDateTime());
+							dbService.insertCampingItem(campingItem);
+						}
+
 						// check data
 						if (cacheCampingItem.getState().equals(CampingState.COMPLETED) == true || 
 								cacheCampingItem.getState().equals(CampingState.WAITING) == true) {
 							// completed/waiting ==> available
 							if (campingItem.getState().equals(CampingState.AVAILABLE) == true) {
 								logger.info("[" + key + "] available = " + campingItem.toString());
-								sendTelegramMessage("*** " + getSiteName() + " available : " + dateDesc + " " + campingItem.toString());
+								sendTelegramMessage("▶ " + getSiteName() + " available : " + dateDesc + " " + campingItem.toString());
 							}
 						}
 					}
@@ -146,54 +185,22 @@ public abstract class CampingService implements IService {
 		logger.info("END");
 	}
 	
-	private Map<String, Map<String, CampingItem>> getCampingItemDateMap() throws Exception {
+	private Map<String, Map<String, CampingItem>> getCampingItemDateMapFromWeb() throws Exception {
 		Map<String, Map<String, CampingItem>> campingItemDateMap = new HashMap<String, Map<String,CampingItem>>();
 		
-		List<Calendar> dateList = new ArrayList<Calendar>();
-		List<String> reservationDateList = reservationDateList();
-		if (reservationDateList == null || reservationDateList.size() == 0) { // 설정이 없는 경우 31일 조회
-			int days = 0;
-			while (days < MAX_DAYS) {
-				Calendar cal = Calendar.getInstance();
-				cal.add(Calendar.DAY_OF_YEAR, days);
-				dateList.add(cal);
-				
-				days++;
-			}
-		} else { // 설정이 있는 경우 설정일만 조회
-			for (String dateString : reservationDateList) {
-				logger.info("reservationDate = " + dateString);
-				
-				Calendar cal = StrUtil.toCalendarFormat(DATE_FORMAT, dateString);
-				Calendar calNow = StrUtil.toCalendarFormat(DATE_FORMAT, StrUtil.getCurDate()); //Calendar.getInstance();
-				if (cal.before(calNow) == true) {
-					logger.info("reservationDate is over = " + dateString);
-					continue;
-				}
-				
-				dateList.add(cal);
-			}
-		}
-
+		List<Calendar> dateList = reservationDateList();
+		
 		for (Calendar cal : dateList) {
 			Map<String, CampingItem> campingItemMap = getCampingItemMap(cal);
-			
 			String reservationDate = StrUtil.toDateFormat(DATE_FORMAT, cal);
-			CampingParam param = new CampingParam();
-			param.setSite(getSiteName());
-			param.setReservatinDate(reservationDate);
-			int seq = dbService.getMaxSeq(param);
-			seq += 1;
-			logger.debug("reservationDate = " + reservationDate + " / seq = " + seq);
 			
 			boolean nonState = false;
 			for (String key : campingItemMap.keySet()) {
 				CampingItem campingItem = campingItemMap.get(key);
-				campingItem.setSeq(seq);
+				campingItem.setSeq(0);
 				campingItem.setSite(getSiteName());
 				campingItem.setReservatinDate(reservationDate);
 				campingItem.setInsertedDate(StrUtil.getCurDateTime());
-				dbService.insertCampingItem(campingItem);
 				
 				if (campingItem.getState().equals(CampingState.NONE) == true) {
 					nonState = true;
@@ -204,10 +211,41 @@ public abstract class CampingService implements IService {
 				break;
 			}
 
-			String parsedDate = StrUtil.toDateFormat(DATE_FORMAT, cal);
-			campingItemDateMap.putIfAbsent(parsedDate, campingItemMap);
+			campingItemDateMap.putIfAbsent(reservationDate, campingItemMap);
+			logger.info(reservationDate + " count = " + campingItemMap.size());
 
 			Thread.sleep(1000);
+		}
+		
+		return campingItemDateMap;
+	}
+	
+	private Map<String, Map<String, CampingItem>> getCampingItemDateMapFromDb() throws Exception {
+		Map<String, Map<String, CampingItem>> campingItemDateMap = new HashMap<String, Map<String,CampingItem>>();
+		
+		List<Calendar> dateList = reservationDateList();
+
+		for (Calendar cal : dateList) {
+			String reservationDate = StrUtil.toDateFormat(DATE_FORMAT, cal);
+			CampingParam param = new CampingParam();
+			param.setSeq(0);
+			param.setSite(getSiteName());
+			param.setReservatinDate(reservationDate);
+			List<CampingItem> campingItemList = dbService.getCampingItemList(param);
+
+			Map<String, CampingItem> campingItemMap = new HashMap<String, CampingItem>();
+			for (CampingItem item : campingItemList) {
+				for (CampingState state : CampingState.values()) {
+					if (state.toString().equals(item.getStateDesc()) == true) {
+						item.setState(state);
+						break;
+					}
+				}
+				
+				campingItemMap.put(item.getKey(), item);
+			}
+
+			campingItemDateMap.putIfAbsent(reservationDate, campingItemMap);
 		}
 		
 		return campingItemDateMap;

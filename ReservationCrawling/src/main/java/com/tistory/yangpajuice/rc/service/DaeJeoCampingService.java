@@ -45,7 +45,11 @@ public class DaeJeoCampingService extends CampingService {
 				continue;
 			}
 			
-			campingItemMap.put(campingItem.getKey(), campingItem);
+			if (campingItemMap.containsKey(campingItem.getKey()) == true) {
+				logger.error("duplicated item = " + campingItem.toString());
+			} else {
+				campingItemMap.putIfAbsent(campingItem.getKey(), campingItem);
+			}
 			//logger.debug(campingItem.toString());
 		}
 		
@@ -69,9 +73,9 @@ public class DaeJeoCampingService extends CampingService {
 		for (String clazz : clazzList) {
 			clazz = clazz.trim();
 			
-			if (clazz.equals("cbtn_112") == true) { // D-52 데이터가 중복으로 나옴. 중복된 데이터는 무시
-				return null;
-			}
+//			if (clazz.equals("cbtn_112") == true) { // D-52 데이터가 중복으로 나옴. 중복된 데이터는 무시
+//				return null;
+//			}
 			
 			if (clazz.startsWith("cbtn_on") == true) {
 				campingItem.setState(CampingState.AVAILABLE);

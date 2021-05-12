@@ -67,6 +67,32 @@ public class DbService {
 		return rtnValue;
 	}
 	
+	public List<CampingItem> getCampingItemList(CampingParam param) {
+		List<CampingItem> rtnValue = null;
+		
+		try {
+			rtnValue = campingMapper.getCampingItemList(param);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+		
+		return rtnValue;
+	}
+	
+	public int increaseSeqCampingItem(CampingParam param) {
+		int rtnValue = 0;
+		
+		try {
+			rtnValue = campingMapper.increaseSeqCampingItem(param);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+		
+		return rtnValue;
+	}
+	
 	public int insertCampingItem(CampingItem item) {
 		int rtnValue = 0;
 		
