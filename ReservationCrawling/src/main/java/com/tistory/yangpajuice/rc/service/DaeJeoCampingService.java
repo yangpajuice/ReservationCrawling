@@ -91,4 +91,10 @@ public class DaeJeoCampingService extends CampingService {
 
 		return campingItem;
 	}
+
+	@Override
+	protected String getDateUrl(String date) {
+		String dateDesc = StrUtil.toDateFormat(DATE_FORMAT, "yyyy-MM-dd", date);
+		return getDefaultUrl() + "?resdate=" + dateDesc;
+	}
 }

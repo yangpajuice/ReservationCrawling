@@ -17,7 +17,7 @@ import com.tistory.yangpajuice.rc.util.*;
 public abstract class CampingService implements IService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final String userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36";
-	private final String DATE_FORMAT = "yyyyMMdd";
+	protected final String DATE_FORMAT = "yyyyMMdd";
 	private final int MAX_DAYS = 31;
 //	private Map<String, Map<String, CampingItem>> cacheCampingItemDateMap = null;
 	
@@ -28,6 +28,7 @@ public abstract class CampingService implements IService {
     private DbService dbService;
 	
 	protected abstract String getDefaultUrl();
+	protected abstract String getDateUrl(String date);
 	protected abstract String getSiteName();
 	protected abstract Map<String, String> getInquiryData(Calendar cal);
 	protected abstract Map<String, CampingItem> getCampingItemMap(Document doc) throws Exception;
@@ -177,7 +178,12 @@ public abstract class CampingService implements IService {
 								msg += "Date : " + dateDesc + "\n";
 								msg += "Area : " + campingItem.getArea() + " " + campingItem.getNo() + "\n";
 								msg += "\n";
-								msg += getDefaultUrl();
+								
+								String url = getDateUrl(key);
+								if (url == null) {
+									url = getDefaultUrl();
+								}
+								msg += url;
 								sendTelegramMessage(msg);
 							}
 						}

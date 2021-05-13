@@ -78,4 +78,10 @@ public class SamRakCampingService extends CampingService {
 		
 		return campingItem;
 	}
+
+	@Override
+	protected String getDateUrl(String date) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
