@@ -15,5 +15,6 @@ public interface IWebPageMapper {
 	public int insertWebPageItem(WebPageItem item);
 	public String getMaxIdWebPageItem(WebPageParam param);
 	public List<WebPageItem> getWebPageItemList(WebPageParam param);
+	public List<WebPageItem> getRecentWebPageItemList(WebPageParam param);
 	public int updateWebPageItemIdIncrease(WebPageItem item);
 }

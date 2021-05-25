@@ -33,15 +33,21 @@ public class CrawlingScheduler {
 	
 	@Autowired
 	private PpomppuService ppomppuService;
+	
+	@Autowired
+	private CinemaService cinemaService;
 
 	@PostConstruct
     private void init() {
-		registerTelegramBot();
 		
-		CampingSchuduler();
-		Ppomppu();
-		HardKernel();
-		Clien();
+		// for test *******************
+		
+//		registerTelegramBot();
+//		
+//		CampingSchuduler();
+//		Ppomppu();
+//		HardKernel();
+//		Clien();
 	}
 	
 	private void registerTelegramBot() { // TelegramBot 설정
@@ -58,6 +64,11 @@ public class CrawlingScheduler {
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);
 		}
+	}
+	
+	@Scheduled(fixedRate = 1000 * 10) // 10초
+	public void CinemaScheduler() {
+		cinemaService.start();
 	}
 	
 	@Scheduled(cron = "*/30 * * * * *") // 매30초 마다

@@ -35,6 +35,7 @@
 			ARTICLE CLOB,
 			LINK VARCHAR(300),
 			USER_ID VARCHAR(50),
+			POST_DATE DATE,
 			INSERTED_DATE DATE
 		)
 	</insert>
@@ -43,12 +44,13 @@
 	    INSERT INTO RC_WEBPAGE
 	    (
 		    SITE, ID, URL, MAIN_CATEGORY, SUB_CATEGORY, SUBJECT, 
-		    ARTICLE, LINK, USER_ID, INSERTED_DATE
+		    ARTICLE, LINK, USER_ID, POST_DATE, INSERTED_DATE
     	)
 	    VALUES
 	    (
 		    #{site}, #{id}, #{url}, #{mainCategory}, #{subCategory}, #{subject}, 
-		    #{article}, #{link}, #{userId}, TO_DATE(#{insertedDate}, 'YYYYMMDDHH24MISS')
+		    #{article}, #{link}, #{userId}, TO_DATE(#{postDate}, 'YYYYMMDDHH24MISS'),
+		    TO_DATE(#{insertedDate}, 'YYYYMMDDHH24MISS')
 	    )
 	</insert>
 	
@@ -77,6 +79,29 @@
 		<if test="mainCategory != null and mainCategory != '' " >
 			AND MAIN_CATEGORY = #{mainCategory}
 		</if>
+  	</select>
+  	
+  	<select id="getRecentWebPageItemList" resultMap="resultWebPageItem" parameterType="com.tistory.yangpajuice.rc.param.WebPageParam" >
+  		SELECT SITE, ID, URL,
+		MAIN_CATEGORY, SUB_CATEGORY, SUBJECT, ARTICLE, LINK, USER_ID, 
+		POST_DATE, 
+		INSERTED_DATE
+		FROM (
+			SELECT SITE, ID, URL,
+			MAIN_CATEGORY, SUB_CATEGORY, SUBJECT, ARTICLE, LINK, USER_ID, 
+			TO_CHAR(POST_DATE, 'YYYYMMDDHH24MISS') AS POST_DATE, 
+			TO_CHAR(INSERTED_DATE, 'YYYYMMDDHH24MISS') AS INSERTED_DATE
+			FROM RC_WEBPAGE
+			WHERE SITE = #{site}
+			<if test="id != null and id != '' " >
+				AND ID = #{id}
+			</if>
+			<if test="mainCategory != null and mainCategory != '' " >
+				AND MAIN_CATEGORY = #{mainCategory}
+			</if>
+			ORDER BY INSERTED_DATE DESC
+		)
+		WHERE ROWNUM <![CDATA[<=]]> 100
   	</select>
   	
   	<update id="updateWebPageItemIdIncrease" parameterType="com.tistory.yangpajuice.rc.item.WebPageItem">
