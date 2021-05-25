@@ -39,15 +39,12 @@ public class CrawlingScheduler {
 
 	@PostConstruct
     private void init() {
+		registerTelegramBot();
 		
-		// for test *******************
-		
-//		registerTelegramBot();
-//		
-//		CampingSchuduler();
-//		Ppomppu();
-//		HardKernel();
-//		Clien();
+		CampingSchuduler();
+		Ppomppu();
+		HardKernel();
+		Clien();
 	}
 	
 	private void registerTelegramBot() { // TelegramBot 설정
@@ -66,7 +63,7 @@ public class CrawlingScheduler {
 		}
 	}
 	
-	@Scheduled(fixedRate = 1000 * 10) // 10초
+	@Scheduled(fixedRate = 1000 * 60) // 1분
 	public void CinemaScheduler() {
 		cinemaService.start();
 	}
