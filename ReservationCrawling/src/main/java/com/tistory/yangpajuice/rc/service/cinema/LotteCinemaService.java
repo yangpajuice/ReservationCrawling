@@ -1,4 +1,4 @@
-package com.tistory.yangpajuice.rc.service;
+package com.tistory.yangpajuice.rc.service.cinema;
 
 import java.util.*;
 
@@ -20,19 +20,20 @@ import com.google.gson.*;
 import com.tistory.yangpajuice.rc.constants.*;
 import com.tistory.yangpajuice.rc.item.*;
 import com.tistory.yangpajuice.rc.param.*;
+import com.tistory.yangpajuice.rc.service.*;
 import com.tistory.yangpajuice.rc.util.*;
 
 import reactor.core.publisher.*;
 
 @Service
-public class CinemaService implements IService {
+public class LotteCinemaService implements IService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final String LOTTE_EVENT_CODE_NOTIFY = "30"; // 공지사항
 	private final String LOTTE_EVENT_CODE_MOVIE = "20"; // 영화
 	private final String LOTTE_EVENT_CODE_PREVIEW = "40"; // 시사회/무대인사
 	private final String LOTTE_EVENT_CODE_HOT = "10"; // HOT
 	private final String LOTTE_EVENT_CODE_DISCOUNT = "50"; // 제휴할인
-	private final String SITE_LOTTE_CINEMA = "LotteCinema";
+	private final String SITE = "LotteCinema";
 	private final String NEW_LINE = "\n";
 	
 	@Autowired
@@ -93,7 +94,7 @@ public class CinemaService implements IService {
 			}
 			
 			WebPageParam webPageParam = new WebPageParam();
-			webPageParam.setSite(SITE_LOTTE_CINEMA);
+			webPageParam.setSite(SITE);
 			List<WebPageItem> webPageItemListFromDb = dbService.getRecentWebPageItemList(webPageParam);
 			for (LotteCinemaEventItem lotteCinemaEventItem : lotteCinemaEventItemList) {
 				if (lotteCinemaEventItem.getEventClassificationCode().equals(LOTTE_EVENT_CODE_NOTIFY) == true) {
@@ -137,7 +138,7 @@ public class CinemaService implements IService {
 		WebPageItem webPageItem = new WebPageItem();
 		
 		try {
-			webPageItem.setSite(SITE_LOTTE_CINEMA);
+			webPageItem.setSite(SITE);
 			webPageItem.setInsertedDate(StrUtil.getCurDateTime());
 			
 			webPageItem.setId(item.getEventID());

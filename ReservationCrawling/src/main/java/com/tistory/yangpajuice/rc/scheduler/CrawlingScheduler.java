@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.*;
 import org.telegram.telegrambots.updatesreceivers.*;
 
 import com.tistory.yangpajuice.rc.service.*;
+import com.tistory.yangpajuice.rc.service.cinema.*;
 import com.tistory.yangpajuice.rc.service.telegrambot.*;
 
 @Component
@@ -35,7 +36,7 @@ public class CrawlingScheduler {
 	private PpomppuService ppomppuService;
 	
 	@Autowired
-	private CinemaService cinemaService;
+	private LotteCinemaService lotteCinemaService;
 
 	@PostConstruct
     private void init() {
@@ -65,7 +66,7 @@ public class CrawlingScheduler {
 	
 	@Scheduled(fixedRate = 1000 * 60) // 1분
 	public void CinemaScheduler() {
-		cinemaService.start();
+		lotteCinemaService.start();
 	}
 	
 	@Scheduled(cron = "*/30 * * * * *") // 매30초 마다
