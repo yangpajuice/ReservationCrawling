@@ -4,6 +4,9 @@ public class CodeConstants {
 	public static final String YES = "Y";
 	public static final String ALL = "*";
 	
+	public static String NEW_LINE = "\n";
+	public static String TAB = "\t";
+	
 	public static final String SECT_ID_SYSTEM = "SYSTEM";
 	public static final String SECT_ID_CAMP = "CAMP";
 	public static final String SECT_ID_CLIEN = "CLIEN";

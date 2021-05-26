@@ -37,6 +37,9 @@ public class CrawlingScheduler {
 	
 	@Autowired
 	private LotteCinemaService lotteCinemaService;
+	
+	@Autowired
+	private CgvCinemaService cgvCinemaService;
 
 	@PostConstruct
     private void init() {
@@ -67,6 +70,7 @@ public class CrawlingScheduler {
 	@Scheduled(fixedRate = 1000 * 60) // 1분
 	public void CinemaScheduler() {
 		lotteCinemaService.start();
+		cgvCinemaService.start();
 	}
 	
 	@Scheduled(cron = "*/30 * * * * *") // 매30초 마다

@@ -26,7 +26,7 @@ import com.tistory.yangpajuice.rc.util.*;
 import reactor.core.publisher.*;
 
 @Service
-public class LotteCinemaService implements IService {
+public class LotteCinemaService extends CinemaService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final String LOTTE_EVENT_CODE_NOTIFY = "30"; // 공지사항
 	private final String LOTTE_EVENT_CODE_MOVIE = "20"; // 영화
@@ -34,13 +34,6 @@ public class LotteCinemaService implements IService {
 	private final String LOTTE_EVENT_CODE_HOT = "10"; // HOT
 	private final String LOTTE_EVENT_CODE_DISCOUNT = "50"; // 제휴할인
 	private final String SITE = "LotteCinema";
-	private final String NEW_LINE = "\n";
-	
-	@Autowired
-	private Telegram telegram;
-
-	@Autowired
-	private DbService dbService;
 	
 	@PostConstruct
 	private void init() {
@@ -118,9 +111,9 @@ public class LotteCinemaService implements IService {
 					int insertedCnt = dbService.insertWebPageItem(webPageItem);
 					
 					// send message
-					String message = "[롯데시네마]" + NEW_LINE;
-					message += webPageItem.getSubject() + NEW_LINE;
-					message += webPageItem.getArticle() + NEW_LINE;
+					String message = "[롯데시네마]" + CodeConstants.NEW_LINE;
+					message += webPageItem.getSubject() + CodeConstants.NEW_LINE;
+					message += webPageItem.getArticle() + CodeConstants.NEW_LINE;
 					message += webPageItem.getUrl();
 					telegram.sendMessage(CodeConstants.SECT_ID_CINEMA, message);
 					Thread.sleep(100);
