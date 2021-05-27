@@ -136,36 +136,4 @@ public class CgvCinemaService extends CinemaService {
 		
 		logger.info("END");
 	}
-	
-	private WebPageItem getWebPageItem(LotteCinemaEventItem item) {
-		WebPageItem webPageItem = new WebPageItem();
-		
-		try {
-			webPageItem.setSite(SITE);
-			webPageItem.setInsertedDate(StrUtil.getCurDateTime());
-			
-			webPageItem.setId(item.getEventID());
-			webPageItem.setUrl(item.getImageUrl());
-			webPageItem.setMainCategory(item.getEventClassificationCode());
-			webPageItem.setSubCategory(item.getEventTypeCode());
-			webPageItem.setSubject(item.getEventName());
-			
-			String article = item.getEventNtc();
-			if (article != null && article.length() > 0) {
-				article = Jsoup.parse(article).text();
-				webPageItem.setArticle(article);
-			}
-			
-			String postDate = item.getProgressStartDate(); // 2021.05.27
-			if (postDate != null && postDate.length() > 0) {
-				postDate = StrUtil.toDateFormat("yyyy.MM.dd", "yyyyMMddHHmmss", postDate);
-				webPageItem.setPostDate(postDate);
-			}
-			
-		} catch (Exception e) {
-			logger.error("An exception occurred!", e);
-		}
-		
-		return webPageItem;
-	}
 }

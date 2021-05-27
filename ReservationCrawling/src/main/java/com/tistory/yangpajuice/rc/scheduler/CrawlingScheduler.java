@@ -73,7 +73,7 @@ public class CrawlingScheduler {
 		cgvCinemaService.start();
 	}
 	
-	@Scheduled(cron = "*/30 * * * * *") // 매30초 마다
+	@Scheduled(fixedRate = 1000 * 30) // 매30초 마다
 	public void CampingSchuduler() {
 		logger.info("CampingSchuduler START");
 		
@@ -84,17 +84,17 @@ public class CrawlingScheduler {
 		logger.info("CampingSchuduler END");
 	}
 	
-	@Scheduled(cron = "30 3/10 08-17 ? * MON-FRI")
+	@Scheduled(fixedRate = 1000 * 60 * 60) // 60분마다
 	public void HardKernel() {
 		hardKernelService.start();
 	}
 	
-	@Scheduled(cron = "0 0/2 * * * *") // 2분마다, 0초에
+	@Scheduled(fixedRate = 1000 * 60 * 2) // 2분마다
 	public void Clien() {
 		clienService.start();
 	}
 	
-	@Scheduled(cron = "0 0/2 * * * *") // 2분마다, 0초에
+	@Scheduled(fixedRate = 1000 * 60 * 2) // 2분마다
 	public void Ppomppu() {
 		ppomppuService.start();
 	}
