@@ -85,7 +85,12 @@ public class CgvCinemaService extends CinemaService {
 				
 				Elements subElms = elm.select("a");
 				String[] urlList = subElms.get(0).attr("href").split("'");
-				String url = "http://m.cgv.co.kr" + urlList[1];
+				String subUrl = urlList[1];
+				if (subUrl.startsWith("./EventDetailGeneralUnited") == true) { // ex) ./EventDetailGeneralUnited.aspx?seq=32348&mCode=004&iPage=1
+					subUrl = subUrl.substring(1);
+					subUrl = "/WebApp/EventNotiV4/" + subUrl;
+				}
+				String url = "http://m.cgv.co.kr" + subUrl;
 				webPageItem.setUrl(url);
 				
 				webPageItem.setMainCategory("EVENT");
