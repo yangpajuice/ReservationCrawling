@@ -21,9 +21,6 @@ public class CrawlingScheduler {
 	TelegramBotsApi telegramBotsApi = null;
 
 	@Autowired
-	private List<TelegramBot> telegramBotList;
-
-	@Autowired
 	private List<CampingService> campingServiceList;
 	
 	@Autowired
@@ -43,28 +40,14 @@ public class CrawlingScheduler {
 
 	@PostConstruct
     private void init() {
-		registerTelegramBot();
 		
-		CampingSchuduler();
-		Ppomppu();
-		HardKernel();
-		Clien();
-	}
-	
-	private void registerTelegramBot() { // TelegramBot 설정
-		
-		try {
-			telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+		// for test ***************************
+		cgvCinemaService.start();
 
-			for (TelegramBot telegramBot : telegramBotList) {
-				telegramBotsApi.registerBot(telegramBot);
-				logger.info(telegramBot.getClass().getSimpleName() + " is added.");
-			}
-			
-			
-		} catch (Exception e) {
-			logger.error("An exception occurred!", e);
-		}
+//		CampingSchuduler();
+//		Ppomppu();
+//		HardKernel();
+//		Clien();
 	}
 	
 	@Scheduled(fixedRate = 1000 * 60) // 1분

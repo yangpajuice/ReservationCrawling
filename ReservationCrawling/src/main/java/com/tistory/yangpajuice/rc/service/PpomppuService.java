@@ -9,10 +9,12 @@ import org.jsoup.nodes.*;
 import org.jsoup.select.*;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.*;
 import org.springframework.stereotype.*;
 
 import com.tistory.yangpajuice.rc.constants.*;
 import com.tistory.yangpajuice.rc.item.*;
+import com.tistory.yangpajuice.rc.item.event.*;
 import com.tistory.yangpajuice.rc.param.*;
 import com.tistory.yangpajuice.rc.util.*;
 
@@ -22,14 +24,14 @@ public class PpomppuService implements IService {
 	private final String SITE = "Ppomppu";
 	
 	@Autowired
-	private Telegram telegram;
+    private DbService dbService;
 	
 	@Autowired
-    private DbService dbService;
+	protected ApplicationEventPublisher publisher;
 	
 	@PostConstruct
     private void init() {
-        telegram.sendSystemMessage(CodeConstants.SECT_ID_PPOMPPU, "Ppomppu is initialized");
+		logger.info("Initialized");
 	}
 	
 	@Override
@@ -39,7 +41,8 @@ public class PpomppuService implements IService {
 		try {
 			ArrayList<WebPageItem> items = getPpomppuItems();
 			for (WebPageItem item : items) {
-				telegram.sendMessage(CodeConstants.SECT_ID_PPOMPPU, item);
+				//telegram.sendMessage(CodeConstants.SECT_ID_PPOMPPU, item);
+				publisher.publishEvent(new PpomppuAddedEvent(item));
 				Thread.sleep(100);
 			}
 			

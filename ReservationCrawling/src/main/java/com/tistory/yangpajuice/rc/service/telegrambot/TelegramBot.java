@@ -2,9 +2,14 @@ package com.tistory.yangpajuice.rc.service.telegrambot;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.telegram.telegrambots.bots.*;
+import org.telegram.telegrambots.meta.api.methods.send.*;
+import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.*;
 
 import com.tistory.yangpajuice.rc.config.*;
 import com.tistory.yangpajuice.rc.constants.*;
@@ -15,7 +20,7 @@ import com.tistory.yangpajuice.rc.service.*;
 public abstract class TelegramBot extends TelegramLongPollingBot implements IBot {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	protected final String MENU_START = "/start";
+	protected final String MENU_COMMON_START = "/start";
 	protected final String MENU_SHOW_ALARM = "/ShowAlarm";
 	
 	protected TelegramConfig telegramConfig;
@@ -23,14 +28,23 @@ public abstract class TelegramBot extends TelegramLongPollingBot implements IBot
 	@Autowired
     protected DbService dbService;
 	
-	protected boolean initConfig() {
+	@PostConstruct
+    private void init() {
+		initConfig();
+	}
+	
+	protected abstract String getSectId();
+	protected abstract String onUpdateReceivedCustom(Update update);
+	protected abstract ReplyKeyboardMarkup getReplyKeyboardMarkup();
+	
+	private boolean initConfig() {
 		boolean rtnValue = false;
 		
 		try {
 			telegramConfig = new TelegramConfig();
 			
 			ConfigParam param = new ConfigParam();
-			param.setSectId(CodeConstants.SECT_ID_PPOMPPU);
+			param.setSectId(getSectId());
 			List<ConfigItem> configItemList = dbService.getConfigItemList(param);
 			for (ConfigItem configItem : configItemList) {
 				if (configItem.getKeyId().equals(CodeConstants.KEY_ID_BOT_CHAT_ID) == true) {
@@ -51,6 +65,53 @@ public abstract class TelegramBot extends TelegramLongPollingBot implements IBot
 		}
 		
 		return rtnValue;
+	}
+	
+	@Override
+	public void onUpdateReceived(Update update) {
+		String receivedMessage = update.getMessage().getText();
+		String chatId = update.getMessage().getChatId().toString();
+		logger.info("Received Message = " + chatId + " : " + receivedMessage);
+		
+		// common
+		if (receivedMessage.equals(MENU_COMMON_START) == true) {
+			updateChatId(chatId);
+			String sendMessage = "ChatID ▶ " + chatId;
+			sendMessage(sendMessage, chatId);
+			
+			return;
+		}
+		
+		// custom
+		String rtnValue = onUpdateReceivedCustom(update);
+		if (rtnValue != null && rtnValue.length() > 0) {
+			sendMessage(rtnValue, chatId);
+		}
+	}
+	
+	public void sendMessageToAll(String sendMessage) {
+		sendMessage(sendMessage, telegramConfig.getBotChatId());
+	}
+	
+	public void sendMessage(String sendMessage, String chatId) {
+		logger.info("message = " + sendMessage + ", chatID = " + chatId);
+		
+		try {
+			SendMessage message = new SendMessage();
+			message.setText(sendMessage);
+			message.setChatId(chatId);
+			
+			//message.setDisableWebPagePreview(true);
+			ReplyKeyboardMarkup replyKeyboardMarkup = getReplyKeyboardMarkup();
+			if (replyKeyboardMarkup != null) {
+				message.setReplyMarkup(replyKeyboardMarkup);
+			}
+			
+			execute(message);
+			
+		} catch (Exception e) {
+			logger.error("exception", e);
+		}
 	}
 	
 	protected boolean updateChatId(String chatId) {

@@ -17,6 +17,7 @@ import org.springframework.web.reactive.function.client.*;
 import com.google.gson.*;
 import com.tistory.yangpajuice.rc.constants.*;
 import com.tistory.yangpajuice.rc.item.*;
+import com.tistory.yangpajuice.rc.item.event.*;
 import com.tistory.yangpajuice.rc.param.*;
 import com.tistory.yangpajuice.rc.util.*;
 
@@ -120,12 +121,7 @@ public class CgvCinemaService extends CinemaService {
 				} else { // new item is added
 					int insertedCnt = dbService.insertWebPageItem(webPageItem);
 					
-					// send message
-					String message = "[CGV]" + CodeConstants.NEW_LINE;
-					message += webPageItem.getSubject() + CodeConstants.NEW_LINE;
-					message += webPageItem.getArticle() + CodeConstants.NEW_LINE;
-					message += webPageItem.getUrl();
-					telegram.sendMessage(CodeConstants.SECT_ID_CINEMA, message);
+					publisher.publishEvent(new CgvAddedEvent(webPageItem));
 					Thread.sleep(100);
 				}
 			}

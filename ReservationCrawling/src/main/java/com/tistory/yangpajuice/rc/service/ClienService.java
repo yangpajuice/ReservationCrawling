@@ -9,10 +9,12 @@ import org.jsoup.nodes.*;
 import org.jsoup.select.*;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.*;
 import org.springframework.stereotype.*;
 
 import com.tistory.yangpajuice.rc.constants.*;
 import com.tistory.yangpajuice.rc.item.*;
+import com.tistory.yangpajuice.rc.item.event.*;
 import com.tistory.yangpajuice.rc.param.*;
 import com.tistory.yangpajuice.rc.util.*;
 
@@ -24,14 +26,14 @@ public class ClienService implements IService {
 	private final String RULE_SUBURL = "/service/board/rule/";
 	
 	@Autowired
-	private Telegram telegram;
+	protected ApplicationEventPublisher publisher;
 	
 	@Autowired
     private DbService dbService;
 
 	@PostConstruct
     private void init() {
-        telegram.sendSystemMessage(CodeConstants.SECT_ID_CLIEN, "Clien is initialized");
+        logger.info("Initialized");
 	}
 
 	@Override
@@ -41,7 +43,7 @@ public class ClienService implements IService {
 		try {
 			ArrayList<WebPageItem> clienItems = getClienItems();
 			for (WebPageItem item : clienItems) {
-				telegram.sendMessage(CodeConstants.SECT_ID_CLIEN, item);
+				publisher.publishEvent(new ClienAddedEvent(item));
 				Thread.sleep(100);
 			}
 

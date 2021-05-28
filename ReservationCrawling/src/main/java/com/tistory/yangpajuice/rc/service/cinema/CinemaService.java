@@ -2,6 +2,7 @@ package com.tistory.yangpajuice.rc.service.cinema;
 
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.*;
 
 import com.tistory.yangpajuice.rc.service.*;
 import com.tistory.yangpajuice.rc.util.*;
@@ -16,5 +17,6 @@ public abstract class CinemaService implements IService {
 	@Autowired
 	protected DbService dbService;
 	
-	
+	@Autowired
+	protected ApplicationEventPublisher publisher;
 }

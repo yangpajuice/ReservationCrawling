@@ -1,36 +1,30 @@
 package com.tistory.yangpajuice.rc.service.telegrambot;
 
-import javax.annotation.*;
-
 import org.slf4j.*;
 import org.springframework.stereotype.*;
 import org.telegram.telegrambots.meta.api.methods.send.*;
 import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.*;
 
 import com.tistory.yangpajuice.rc.constants.*;
-import com.tistory.yangpajuice.rc.service.telegrambot.ClienBot.*;
 
 @Component
 public class PpomppuBot extends TelegramBot {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	@PostConstruct
-    private void init() {
-		initConfig();
-	}
-
 	@Override
-	public void onUpdateReceived(Update update) {
+	protected String getSectId() {
+		return CodeConstants.SECT_ID_PPOMPPU;
+	}
+	
+	@Override
+	protected String onUpdateReceivedCustom(Update update) {
 		String receivedMessage = update.getMessage().getText().trim();
 		String chatId = update.getMessage().getChatId().toString();
 		logger.info("Received Message = " + chatId + " : " + receivedMessage);
 
 		String sendMessage = "";
-		if (receivedMessage.equals(MENU_START) == true) {
-			updateChatId(chatId);
-			sendMessage = "ChatID ▶ " + chatId;
-			
-		} else if (receivedMessage.startsWith(MENU_SHOW_ALARM) == true) {
+		if (receivedMessage.startsWith(MENU_SHOW_ALARM) == true) {
 			sendMessage = getConfig(CodeConstants.SECT_ID_PPOMPPU);
 		}
 		
@@ -44,6 +38,8 @@ public class PpomppuBot extends TelegramBot {
 		} catch (Exception e) {
 			
 		}
+		
+		return "";
 	}
 
 	@Override
@@ -54,5 +50,11 @@ public class PpomppuBot extends TelegramBot {
 	@Override
 	public String getBotToken() {
 		return telegramConfig.getBotToken();
+	}
+
+	@Override
+	protected ReplyKeyboardMarkup getReplyKeyboardMarkup() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

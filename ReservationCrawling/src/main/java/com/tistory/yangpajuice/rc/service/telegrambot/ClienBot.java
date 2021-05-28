@@ -10,6 +10,7 @@ import org.springframework.stereotype.*;
 import org.telegram.telegrambots.bots.*;
 import org.telegram.telegrambots.meta.api.methods.send.*;
 import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.*;
 
 import com.tistory.yangpajuice.rc.config.*;
 import com.tistory.yangpajuice.rc.constants.*;
@@ -32,45 +33,21 @@ public class ClienBot extends TelegramBot {
 	private final String MENU_ADD_KEYWORD = "/AddKeyword";
 	private final String MENU_REMOVE_KEYWORD = "/RemoveKeyWord";
 	private final String MSG_NOT_DEFINE = "무슨 말씀이신지 모르겠어요";
-	
-	private TelegramConfig telegramConfig;
-	
-	@Autowired
-    private DbService dbService;
-
-	@PostConstruct
-    private void init() {
-		telegramConfig = new TelegramConfig();
-		
-		ConfigParam param = new ConfigParam();
-		param.setSectId(CodeConstants.SECT_ID_CLIEN);
-		List<ConfigItem> configItemList = dbService.getConfigItemList(param);
-		for (ConfigItem configItem : configItemList) {
-			if (configItem.getKeyId().equals(CodeConstants.KEY_ID_BOT_CHAT_ID) == true) {
-				telegramConfig.setBotChatId(configItem.getValue());
-				
-			} else if (configItem.getKeyId().equals(CodeConstants.KEY_ID_BOT_TOKEN) == true) {
-				telegramConfig.setBotToken(configItem.getValue());
-				
-			} else if (configItem.getKeyId().equals(CodeConstants.KEY_ID_BOT_USER_NAME) == true) {
-				telegramConfig.setBotUserName(configItem.getValue());
-			}
-		}
-	}
 
 	@Override
-	public void onUpdateReceived(Update update) {
+	protected String getSectId() {
+		return CodeConstants.SECT_ID_CLIEN;
+	}
+	
+	@Override
+	protected String onUpdateReceivedCustom(Update update) {
 		String receivedMessage = update.getMessage().getText();
 		String chatId = update.getMessage().getChatId().toString();
 		logger.info("Received Message = " + chatId + " : " + receivedMessage);
 		
 		String sendMessage = "";
 		if (receivedMessage.startsWith("/") == true) { // 메뉴 처리
-			if (receivedMessage.equals(MENU_START) == true) {
-				updateChatId(chatId);
-				sendMessage = "ChatID ▶ " + chatId;
-				
-			} else if (receivedMessage.equals("/") == true || receivedMessage.startsWith(MENU_HELP) == true) { // Help
+			if (receivedMessage.equals("/") == true || receivedMessage.startsWith(MENU_HELP) == true) { // Help
 				mode = ClienMode.NONE;
 				sendMessage = getHelpMessage();
 				
@@ -175,8 +152,10 @@ public class ClienBot extends TelegramBot {
 		} catch (Exception e) {
 			
 		}
+		
+		return "";
 	}
-	
+
 	public String getHelpMessage() {
 		String sendMessage = "";
 		
@@ -196,5 +175,11 @@ public class ClienBot extends TelegramBot {
 	@Override
 	public String getBotToken() {
 		return telegramConfig.getBotToken();
+	}
+
+	@Override
+	protected ReplyKeyboardMarkup getReplyKeyboardMarkup() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
