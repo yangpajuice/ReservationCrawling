@@ -48,6 +48,7 @@ public class CrawlingScheduler {
 //		Ppomppu();
 //		HardKernel();
 //		Clien();
+		logger.info("Initialized");
 	}
 	
 	@Scheduled(fixedRate = 1000 * 60) // 1분
