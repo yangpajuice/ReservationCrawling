@@ -42,7 +42,7 @@ public class CrawlingScheduler {
     private void init() {
 		
 		// for test ***************************
-		cgvCinemaService.start();
+		//cgvCinemaService.start();
 
 //		CampingSchuduler();
 //		Ppomppu();
