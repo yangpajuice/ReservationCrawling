@@ -9,11 +9,13 @@ import org.jsoup.nodes.*;
 import org.jsoup.select.*;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.*;
 import org.springframework.stereotype.*;
 
 import com.tistory.yangpajuice.rc.config.*;
 import com.tistory.yangpajuice.rc.constants.*;
 import com.tistory.yangpajuice.rc.item.*;
+import com.tistory.yangpajuice.rc.item.event.*;
 import com.tistory.yangpajuice.rc.param.*;
 import com.tistory.yangpajuice.rc.util.*;
 
@@ -23,14 +25,14 @@ public class HardKernelService implements IService {
 	private final String SITE = "HARD_KERNEL";
 
 	@Autowired
-	private Telegram telegram;
+	protected ApplicationEventPublisher publisher;
 
 	@Autowired
 	private DbService dbService;
 
 	@PostConstruct
 	private void init() {
-		telegram.sendSystemMessage(CodeConstants.SECT_ID_HARDKERNEL, "HardKernel is initialized");
+		logger.info("Initialized");
 	}
 
 	@Override
@@ -67,10 +69,7 @@ public class HardKernelService implements IService {
 						if (webPageItemFromDb == null) { // new item
 							dbService.insertWebPageItem(webPageItemFromWeb);
 							
-							String msg = "New [" + webPageItemFromWeb.getMainCategory() + "] \n";
-							msg += webPageItemFromWeb.getSubCategory() + "\n";
-							msg += webPageItemFromWeb.getUrl();
-							telegram.sendMessage(CodeConstants.SECT_ID_HARDKERNEL, msg);
+							publisher.publishEvent(new HardkernelAddedEvent(webPageItemFromWeb));
 
 						} else { // item exist
 							if (webPageItemFromWeb.getSubCategory().equals(webPageItemFromDb.getSubCategory()) == true
@@ -83,14 +82,8 @@ public class HardKernelService implements IService {
 								// 기존의 데이터 ID를 1씩 증가시킨다. 최신데이터 ID는 항상 0이 되도록 한다.
 								dbService.updateWebPageItemIdIncrease(webPageItemFromWeb);
 								dbService.insertWebPageItem(webPageItemFromWeb);
-								
-								// 가격이 변경되는 경우
-								if (webPageItemFromWeb.getSubCategory().equals(webPageItemFromDb.getSubCategory()) == false) {
-									String msg = "[" + webPageItemFromWeb.getMainCategory() + "] \n";
-									msg += webPageItemFromDb.getSubCategory() + " -> " + webPageItemFromWeb.getSubCategory() + "\n";
-									msg += webPageItemFromWeb.getUrl();
-									telegram.sendMessage(CodeConstants.SECT_ID_HARDKERNEL, msg);
-								}
+
+								publisher.publishEvent(new HardkernelChangedEvent(webPageItemFromWeb, webPageItemFromDb));
 							}
 						}
 					}

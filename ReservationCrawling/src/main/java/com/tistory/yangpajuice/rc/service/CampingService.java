@@ -8,9 +8,11 @@ import org.jsoup.*;
 import org.jsoup.nodes.*;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.*;
 
 import com.tistory.yangpajuice.rc.constants.*;
 import com.tistory.yangpajuice.rc.item.*;
+import com.tistory.yangpajuice.rc.item.event.*;
 import com.tistory.yangpajuice.rc.param.*;
 import com.tistory.yangpajuice.rc.util.*;
 
@@ -23,6 +25,9 @@ public abstract class CampingService implements IService {
 	
 	@Autowired
 	protected Telegram telegram;
+	
+	@Autowired
+	protected ApplicationEventPublisher publisher;
 
 	@Autowired
     private DbService dbService;
@@ -35,16 +40,7 @@ public abstract class CampingService implements IService {
 	
 	@PostConstruct
     private void init() {
-		
-		try {
-//			cacheCampingItemDateMap = getCampingItemDateMap();
-			
-		} catch (Exception e) {
-			logger.error("An exception occurred!", e);
-		}
-		
 		logger.info("Initialized");
-		telegram.sendSystemMessage(CodeConstants.SECT_ID_CAMP, getSiteName() + " is initialized");
 	}
 	
 	private List<Calendar> reservationDateList() {
@@ -92,39 +88,7 @@ public abstract class CampingService implements IService {
 		
 		return rtnList;
 	}
-	
-	private void sendTelegramMessage(String text) {
-		try {
-			ConfigParam param = new ConfigParam();
-			param.setSectId(CodeConstants.SECT_ID_CAMP);
-			param.setKeyId(CodeConstants.KEY_ID_TELEGRAM);
-			List<ConfigItem> configItemList = dbService.getConfigItemList(param);
-			if (configItemList != null && configItemList.size() > 0) {
-				for (ConfigItem configItem : configItemList) {
-					if (configItem.getValue().equals(getSiteName()) == true) {
-						if (configItem.getValue2().equals(CodeConstants.YES) == true) {
-							telegram.sendMessage(CodeConstants.SECT_ID_CAMP, text);
-							break;
-						}
-					}
-				}
-			}
-			
-		} catch (Exception e) {
-			logger.error("An exception occurred!", e);
-		}
-	}
-	
-//	private void removeOldCacheData() throws Exception {
-//		// remove old data
-//		Calendar yesterdayCal = Calendar.getInstance();
-//		yesterdayCal.add(Calendar.DAY_OF_YEAR, -1);
-//		String parsedDate = StrUtil.toDateFormat(DATE_FORMAT, yesterdayCal);
-//		if (cacheCampingItemDateMap.remove(parsedDate) != null) {
-//			logger.info("removed date = " + parsedDate);
-//		}
-//	}
-	
+
 	@Override
 	public void start() {
 		logger.info("START");
@@ -148,7 +112,9 @@ public abstract class CampingService implements IService {
 					}
 
 					logger.info("new date = " + key);
-					sendTelegramMessage("▷ " + getSiteName() + " Open Date : " + dateDesc);
+
+					//sendTelegramMessage("▷ " + getSiteName() + " Open Date : " + dateDesc);
+					publisher.publishEvent(new CampingDateAddedEvent(getSiteName(), dateDesc));
 					
 				} else {
 					for (String itemKey : campingItemMap.keySet()) {
@@ -173,18 +139,12 @@ public abstract class CampingService implements IService {
 							// completed/waiting ==> available
 							if (campingItem.getState().equals(CampingState.AVAILABLE) == true) {
 								logger.info("[" + key + "] available = " + campingItem.toString());
-								
-								String msg = "▶ " + getSiteName() + " " + campingItem.getState() + "\n";
-								msg += "Date : " + dateDesc + "\n";
-								msg += "Area : " + campingItem.getArea() + " " + campingItem.getNo() + "\n";
-								msg += "\n";
-								
 								String url = getDateUrl(key);
 								if (url == null) {
 									url = getDefaultUrl();
 								}
-								msg += url;
-								sendTelegramMessage(msg);
+								
+								publisher.publishEvent(new CampingAddedEvent(getSiteName(), url, dateDesc, campingItem));
 							}
 						}
 					}

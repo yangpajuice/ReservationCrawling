@@ -35,6 +35,15 @@ public class TelegramListener {
 	@Autowired
 	protected Telegram telegram;
 	
+	@Autowired
+	protected CampingBot campingBot;
+	
+	@Autowired
+	protected HardkernelBot hardkernelBot;
+	
+	@Autowired
+	protected CinemaBot cinemaBot;
+	
 	private void registerTelegramBot() { // TelegramBot 설정
 		try {
 			telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
@@ -44,6 +53,15 @@ public class TelegramListener {
 			
 			telegramBotsApi.registerBot(ppomppuBot);
 			logger.info(ppomppuBot.getClass().getSimpleName() + " is added.");
+			
+			telegramBotsApi.registerBot(campingBot);
+			logger.info(campingBot.getClass().getSimpleName() + " is added.");
+			
+			telegramBotsApi.registerBot(hardkernelBot);
+			logger.info(hardkernelBot.getClass().getSimpleName() + " is added.");
+			
+			telegramBotsApi.registerBot(cinemaBot);
+			logger.info(cinemaBot.getClass().getSimpleName() + " is added.");
 			
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);
@@ -141,6 +159,80 @@ public class TelegramListener {
 	}
 	
 	@EventListener
+	public void onCampingDateAddedEvent(CampingDateAddedEvent event) {
+		logger.info("onCampingDateAddedEvent");
+		
+		String msg = "▷ " + event.getSiteName() + " Open Date : " + event.getDateDesc();
+		campingBot.sendMessageToAll(msg);
+	}
+	
+	@EventListener
+	public void onCampingAddedEvent(CampingAddedEvent event) {
+		logger.info("onCampingAddedEvent");
+		
+		String siteName = event.getSiteName();
+		String url = event.getUrl();
+		String dateDesc = event.getDateDesc();
+		CampingItem campingItem = event.getCampingItem();
+		
+		String msg = "▶ " + siteName + " " + campingItem.getState() + "\n";
+		msg += "Date : " + dateDesc + "\n";
+		msg += "Area : " + campingItem.getArea() + " " + campingItem.getNo() + "\n";
+		msg += "\n";
+		
+		msg += url;
+		
+		try {
+			ConfigParam param = new ConfigParam();
+			param.setSectId(CodeConstants.SECT_ID_CAMP);
+			param.setKeyId(CodeConstants.KEY_ID_TELEGRAM);
+			java.util.List<ConfigItem> configItemList = dbService.getConfigItemList(param);
+			if (configItemList != null && configItemList.size() > 0) {
+				for (ConfigItem configItem : configItemList) {
+					if (configItem.getValue().equals(siteName) == true) {
+						if (configItem.getValue2().equals(CodeConstants.YES) == true) {
+							campingBot.sendMessageToAll(msg);
+							break;
+						}
+					}
+				}
+			}
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+	}
+	
+	@EventListener
+	public void onHardkernelAddedEvent(HardkernelAddedEvent event) {
+		logger.info("onHardkernelAddedEvent");
+		
+		WebPageItem webPageItemFromWeb = event.getWebPageItem();
+		String msg = "New [" + webPageItemFromWeb.getMainCategory() + "] \n";
+		msg += webPageItemFromWeb.getSubCategory() + "\n";
+		msg += webPageItemFromWeb.getUrl();
+
+		hardkernelBot.sendMessageToAll(msg);
+	}
+	
+	@EventListener
+	public void onHardkernelChangedEvent(HardkernelChangedEvent event) {
+		logger.info("onHardkernelChangedEvent");
+		
+		WebPageItem webPageItemFromWeb = event.getWebPageItemFromWeb();
+		WebPageItem webPageItemFromDb = event.getWebPageItemFromDb();
+		
+		// 가격이 변경되는 경우
+		if (webPageItemFromWeb.getSubCategory().equals(webPageItemFromDb.getSubCategory()) == false) {
+			String msg = "[" + webPageItemFromWeb.getMainCategory() + "] \n";
+			msg += webPageItemFromDb.getSubCategory() + " -> " + webPageItemFromWeb.getSubCategory() + "\n";
+			msg += webPageItemFromWeb.getUrl();
+			
+			hardkernelBot.sendMessageToAll(msg);
+		}
+	}
+	
+	@EventListener
 	public void onPpomppuAddedEvent(PpomppuAddedEvent event) {
 		logger.info("onPpomppuAddedEvent");
 
@@ -183,6 +275,26 @@ public class TelegramListener {
 			message += webPageItem.getArticle() + CodeConstants.NEW_LINE;
 			message += webPageItem.getUrl();
 			telegram.sendMessage(CodeConstants.SECT_ID_CINEMA, message);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+	}
+	
+	@EventListener
+	public void onLotteCinemaAddedEvent(LotteCinemaAddedEvent event) {
+		logger.info("onLotteCinemaAddedEvent");
+		
+		try {
+			WebPageItem webPageItem = event.getWebPageItem();
+			
+			// send message
+			String message = "[롯데시네마]" + CodeConstants.NEW_LINE;
+			message += webPageItem.getSubject() + CodeConstants.NEW_LINE;
+			message += webPageItem.getArticle() + CodeConstants.NEW_LINE;
+			message += webPageItem.getUrl();
+			
+			cinemaBot.sendMessageToAll(message);
 			
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);

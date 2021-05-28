@@ -168,16 +168,6 @@ public class ClienBot extends TelegramBot {
 	}
 
 	@Override
-	public String getBotUsername() {
-		return telegramConfig.getBotUserName();
-	}
-
-	@Override
-	public String getBotToken() {
-		return telegramConfig.getBotToken();
-	}
-
-	@Override
 	protected ReplyKeyboardMarkup getReplyKeyboardMarkup() {
 		// TODO Auto-generated method stub
 		return null;

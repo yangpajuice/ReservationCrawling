@@ -32,6 +32,16 @@ public abstract class TelegramBot extends TelegramLongPollingBot implements IBot
     private void init() {
 		initConfig();
 	}
+
+	@Override
+	public String getBotUsername() {
+		return telegramConfig.getBotUserName();
+	}
+
+	@Override
+	public String getBotToken() {
+		return telegramConfig.getBotToken();
+	}
 	
 	protected abstract String getSectId();
 	protected abstract String onUpdateReceivedCustom(Update update);
