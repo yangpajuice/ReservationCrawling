@@ -1,11 +1,13 @@
 package com.tistory.yangpajuice.rc.service.telegrambot;
 
 import org.slf4j.*;
+import org.springframework.stereotype.*;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.*;
 
 import com.tistory.yangpajuice.rc.constants.*;
 
+@Component
 public class HardkernelBot extends TelegramBot {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	

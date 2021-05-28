@@ -13,9 +13,6 @@ import com.tistory.yangpajuice.rc.util.*;
 public class ReservationCrawlingApplication implements CommandLineRunner {
 	private static final Logger logger = LoggerFactory.getLogger(ReservationCrawlingApplication.class);
 
-	@Autowired
-	Telegram telegram;
-	
 	public static void main(String[] args) {
 		SpringApplication.run(ReservationCrawlingApplication.class, args);
 	}

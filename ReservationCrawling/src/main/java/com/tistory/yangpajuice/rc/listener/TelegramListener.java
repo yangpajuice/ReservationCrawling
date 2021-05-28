@@ -33,9 +33,6 @@ public class TelegramListener {
 	private PpomppuBot ppomppuBot;
 	
 	@Autowired
-	protected Telegram telegram;
-	
-	@Autowired
 	protected CampingBot campingBot;
 	
 	@Autowired
@@ -274,7 +271,8 @@ public class TelegramListener {
 			message += webPageItem.getSubject() + CodeConstants.NEW_LINE;
 			message += webPageItem.getArticle() + CodeConstants.NEW_LINE;
 			message += webPageItem.getUrl();
-			telegram.sendMessage(CodeConstants.SECT_ID_CINEMA, message);
+			
+			cinemaBot.sendMessageToAll(message);
 			
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);

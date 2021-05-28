@@ -21,10 +21,6 @@ public abstract class CampingService implements IService {
 	private final String userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36";
 	protected final String DATE_FORMAT = "yyyyMMdd";
 	private final int MAX_DAYS = 31;
-//	private Map<String, Map<String, CampingItem>> cacheCampingItemDateMap = null;
-	
-	@Autowired
-	protected Telegram telegram;
 	
 	@Autowired
 	protected ApplicationEventPublisher publisher;
