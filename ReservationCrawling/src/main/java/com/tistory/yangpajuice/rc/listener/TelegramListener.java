@@ -43,22 +43,25 @@ public class TelegramListener {
 	
 	private void registerTelegramBot() { // TelegramBot 설정
 		try {
-			telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+			registerTelegramBot(clienBot);
+			registerTelegramBot(ppomppuBot);
+			registerTelegramBot(campingBot);
+			registerTelegramBot(hardkernelBot);
+			registerTelegramBot(cinemaBot);
+
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+	}
+	
+	private void registerTelegramBot(TelegramBot bot) {
+		try {
+			if (telegramBotsApi == null) {
+				telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+			}
 			
-			telegramBotsApi.registerBot(clienBot);
-			logger.info(clienBot.getClass().getSimpleName() + " is added.");
-			
-			telegramBotsApi.registerBot(ppomppuBot);
-			logger.info(ppomppuBot.getClass().getSimpleName() + " is added.");
-			
-			telegramBotsApi.registerBot(campingBot);
-			logger.info(campingBot.getClass().getSimpleName() + " is added.");
-			
-			telegramBotsApi.registerBot(hardkernelBot);
-			logger.info(hardkernelBot.getClass().getSimpleName() + " is added.");
-			
-			telegramBotsApi.registerBot(cinemaBot);
-			logger.info(cinemaBot.getClass().getSimpleName() + " is added.");
+			telegramBotsApi.registerBot(bot);
+			logger.info(bot.getClass().getSimpleName() + " is added.");
 			
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);
@@ -290,6 +293,7 @@ public class TelegramListener {
 			String message = "[롯데시네마]" + CodeConstants.NEW_LINE;
 			message += webPageItem.getSubject() + CodeConstants.NEW_LINE;
 			message += webPageItem.getArticle() + CodeConstants.NEW_LINE;
+			message += CodeConstants.NEW_LINE;
 			message += webPageItem.getUrl();
 			
 			cinemaBot.sendMessageToAll(message);

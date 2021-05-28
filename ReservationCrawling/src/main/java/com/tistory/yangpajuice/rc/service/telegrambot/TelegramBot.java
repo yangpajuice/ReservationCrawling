@@ -58,7 +58,13 @@ public abstract class TelegramBot extends TelegramLongPollingBot implements IBot
 			List<ConfigItem> configItemList = dbService.getConfigItemList(param);
 			for (ConfigItem configItem : configItemList) {
 				if (configItem.getKeyId().equals(CodeConstants.KEY_ID_BOT_CHAT_ID) == true) {
-					telegramConfig.setBotChatId(configItem.getValue());
+					//telegramConfig.setBotChatId(configItem.getValue());
+					List<String> chatIdList = telegramConfig.getBotChatId();
+					if (chatIdList == null) {
+						chatIdList = new ArrayList<String>();
+						telegramConfig.setBotChatId(chatIdList);
+					}
+					chatIdList.add(configItem.getValue());
 					
 				} else if (configItem.getKeyId().equals(CodeConstants.KEY_ID_BOT_TOKEN) == true) {
 					telegramConfig.setBotToken(configItem.getValue());
@@ -85,7 +91,7 @@ public abstract class TelegramBot extends TelegramLongPollingBot implements IBot
 		
 		// common
 		if (receivedMessage.equals(MENU_COMMON_START) == true) {
-			updateChatId(chatId);
+			addChatId(chatId);
 			String sendMessage = "ChatID ▶ " + chatId;
 			sendMessage(sendMessage, chatId);
 			
@@ -100,7 +106,12 @@ public abstract class TelegramBot extends TelegramLongPollingBot implements IBot
 	}
 	
 	public void sendMessageToAll(String sendMessage) {
-		sendMessage(sendMessage, telegramConfig.getBotChatId());
+		List<String> chatIdLIst = telegramConfig.getBotChatId();
+		if (chatIdLIst != null && chatIdLIst.size() > 0) {
+			for (String chatId : chatIdLIst) {
+				sendMessage(sendMessage, chatId);
+			}
+		}
 	}
 	
 	public void sendMessage(String sendMessage, String chatId) {
@@ -124,35 +135,36 @@ public abstract class TelegramBot extends TelegramLongPollingBot implements IBot
 		}
 	}
 	
-	protected boolean updateChatId(String chatId) {
+	protected boolean addChatId(String chatId) {
 		boolean rtnValue = false;
 		
 		try {
-			if (chatId.equals(telegramConfig.getBotChatId()) == false) {
-				ConfigParam param = new ConfigParam();
-				param.setSectId(CodeConstants.SECT_ID_PPOMPPU);
-				param.setKeyId(CodeConstants.KEY_ID_BOT_CHAT_ID);
-				List<ConfigItem> configItemList = dbService.getConfigItemList(param);
-				int updatedCnt = 0;
-				if (configItemList == null || configItemList.size() == 0) { // insert
-					ConfigItem configItem = new ConfigItem();
-					configItem.setSectId(CodeConstants.SECT_ID_PPOMPPU);
-					configItem.setKeyId(CodeConstants.KEY_ID_BOT_CHAT_ID);
-					configItem.setSeq(1);
-					configItem.setValue(chatId);
-					
-					updatedCnt = dbService.insertConfigItem(configItem);
-					
-				} else { // update
-					ConfigItem configItem = configItemList.get(0);
-					configItem.setValue(chatId);
-					
-					updatedCnt = dbService.updateConfigItem(configItem);
+			List<String> chatIdList = telegramConfig.getBotChatId();
+			if (chatIdList == null) {
+				chatIdList = new ArrayList<String>();
+				telegramConfig.setBotChatId(chatIdList);
+			}
+			
+			boolean existChatId = false;
+			for (String curChatId : chatIdList) {
+				if (curChatId.equals(chatId) == true) {
+					existChatId = true;
+					break;
 				}
+			}
+			
+			if (existChatId == false) {
+				ConfigItem configItem = new ConfigItem();
+				configItem.setSectId(getSectId());
+				configItem.setKeyId(CodeConstants.KEY_ID_BOT_CHAT_ID);
+				configItem.setSeq(chatIdList.size() + 1);
+				configItem.setValue(chatId);
 				
-				if (updatedCnt > 0) {
+				int insertedCnt = dbService.insertConfigItem(configItem);
+				
+				if (insertedCnt > 0) {
 					rtnValue = true;
-					telegramConfig.setBotChatId(chatId);
+					chatIdList.add(chatId);
 				}
 			}
 		} catch (Exception e) {

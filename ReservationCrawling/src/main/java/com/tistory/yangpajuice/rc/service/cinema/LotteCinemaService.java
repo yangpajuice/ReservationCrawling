@@ -36,6 +36,8 @@ public class LotteCinemaService extends CinemaService {
 	private final String LOTTE_EVENT_CODE_DISCOUNT = "50"; // 제휴할인
 	private final String SITE = "LotteCinema";
 	
+	private final String BASE_URL = "https://www.lottecinema.co.kr";
+	
 	@PostConstruct
 	private void init() {
 		logger.info("init");
@@ -63,9 +65,9 @@ public class LotteCinemaService extends CinemaService {
 		logger.info("START");
 		
 		try {
-			WebClient webClient = WebClient.builder().baseUrl("https://www.lottecinema.co.kr").build();			
+			WebClient webClient = WebClient.builder().baseUrl(BASE_URL).build();			
 			MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-	        map.add("paramList", "{\"MethodName\":\"GetEventLists\",\"channelType\":\"MW\",\"osType\":\"I\",\"osVersion\":\"Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1\",\"EventClassificationCode\":\"0\",\"SearchText\":\"\",\"CinemaID\":\"\",\"PageNo\":1,\"PageSize\":12,\"MemberNo\":\"0\"}");
+	        map.add("paramList", "{\"MethodName\":\"GetEventLists\",\"channelType\":\"MW\",\"osType\":\"I\",\"osVersion\":\"Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1\",\"EventClassificationCode\":\"0\",\"SearchText\":\"\",\"CinemaID\":\"\",\"PageNo\":1,\"PageSize\":19,\"MemberNo\":\"0\"}");
 
 	        String eventList = webClient.post().uri("LCWS/Event/EventData.aspx")
 					.body(BodyInserters.fromFormData(map)).exchange().block().bodyToMono(String.class).block();
@@ -131,7 +133,28 @@ public class LotteCinemaService extends CinemaService {
 			webPageItem.setInsertedDate(StrUtil.getCurDateTime());
 			
 			webPageItem.setId(item.getEventID());
-			webPageItem.setUrl(item.getImageUrl());
+			
+			String url = "";
+			if (item.getEventTypeCode().equals("112") == true) { // 스탬프형
+				url = BASE_URL + "/NLCMW/Event/EventTemplateStamp?eventId=" + item.getEventID();
+				
+			} else if (item.getEventTypeCode().equals("101") == true) { // 정보전달형(공지)
+				url = BASE_URL + "/NLCMW/Event/EventTemplateInfo?eventId=" + item.getEventID();
+				
+			} else if (item.getEventTypeCode().equals("121") == true) { // 스피드형_멀티
+				url = BASE_URL + "/NLCMW/Event/EventTemplateSpeedMulti?eventId=" + item.getEventID();
+				
+			} else if (item.getEventTypeCode().equals("107") == true) { // 무대인사
+				url = BASE_URL + "/NLCMW/Event/EventTemplateStageGreeting?eventId=" + item.getEventID();
+				
+			} else if (item.getEventTypeCode().equals("108") == true) { // 시사회
+				url = BASE_URL + "/NLCMW/Event/EventTemplatePreview?eventId=" + item.getEventID();
+				
+			} else {
+				url = item.getImageUrl();
+			}
+			webPageItem.setUrl(url);
+			
 			webPageItem.setMainCategory(item.getEventClassificationCode());
 			webPageItem.setSubCategory(item.getEventTypeCode());
 			webPageItem.setSubject(item.getEventName());

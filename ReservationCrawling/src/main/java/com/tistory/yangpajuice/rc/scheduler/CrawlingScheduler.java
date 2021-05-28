@@ -40,14 +40,6 @@ public class CrawlingScheduler {
 
 	@PostConstruct
     private void init() {
-		
-		// for test ***************************
-		//cgvCinemaService.start();
-
-//		CampingSchuduler();
-//		Ppomppu();
-//		HardKernel();
-//		Clien();
 		logger.info("Initialized");
 	}
 	

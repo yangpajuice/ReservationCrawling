@@ -1,18 +1,17 @@
 package com.tistory.yangpajuice.rc.config;
 
+import java.util.*;
+
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 
 @Component
 public class TelegramConfig implements ITelegramConfig {
-	@Value("${telegram.bot.username}")
 	private String botUserName = "";
 	
-	@Value("${telegram.bot.token}")
 	private String botToken = "";
-	
-	@Value("${telegram.bot.chatid}")
-	private String botChatId = "";
+
+	private List<String> botChatId = null;
 
 	public String getBotUserName() {
 		return botUserName;
@@ -30,11 +29,11 @@ public class TelegramConfig implements ITelegramConfig {
 		this.botToken = botToken;
 	}
 
-	public String getBotChatId() {
+	public List<String> getBotChatId() {
 		return botChatId;
 	}
 
-	public void setBotChatId(String botChatId) {
+	public void setBotChatId(List<String> botChatId) {
 		this.botChatId = botChatId;
 	}
 }
