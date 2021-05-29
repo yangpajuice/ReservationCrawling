@@ -131,58 +131,68 @@ public class TelegramListener {
 	public void onClienAddedEvent(ClienAddedEvent event) {
 		logger.info("onClienAddedEvent");
 
-		String sectId = CodeConstants.SECT_ID_CLIEN;
-		WebPageItem item = event.getItem();
-		if (isMainCategoryForMessage(sectId, item) == false) {
-			logger.error(CodeConstants.SECT_ID_PPOMPPU + " ConfigItem 알람설정이 되지 않았습니다.");
-			return;
+		try {
+			String sectId = CodeConstants.SECT_ID_CLIEN;
+			WebPageItem item = event.getItem();
+			if (isMainCategoryForMessage(sectId, item) == false) {
+				logger.error(sectId + " ConfigItem 알람설정이 되지 않았습니다.");
+				return;
+			}
+	
+			// Sect별 키워드 확인
+			String keyword = getMatchedKeyword(sectId, item);
+			if (keyword == null || keyword.length() == 0) {
+				keyword = getMatchedKeyword(CodeConstants.SECT_ID_SYSTEM, item);
+			}
+			
+			if (keyword == null || keyword.length() == 0) {
+				logger.error(sectId + " Keyword가 없습니다.");
+				return;
+			}
+			
+			String msg = "";
+			msg = "[" + sectId + "] " + item.getMainCategory() + " * " + item.getSubCategory() + "\n";
+			msg += "Keyword ▶ " + keyword + "\n" + "\n";
+	    	msg += item.getSubject() + "\n" + "\n";
+	    	msg += item.getUrl();
+			
+	    	ppomppuBot.sendMessageToAll(msg);
+	    	
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
 		}
-
-		// Sect별 키워드 확인
-		String keyword = getMatchedKeyword(sectId, item);
-		if (keyword == null || keyword.length() == 0) {
-			keyword = getMatchedKeyword(CodeConstants.SECT_ID_SYSTEM, item);
-		}
-		
-		if (keyword == null || keyword.length() == 0) {
-			logger.error(sectId + " Keyword가 없습니다.");
-			return;
-		}
-		
-		String msg = "";
-		msg = "[" + sectId + "] " + item.getMainCategory() + " * " + item.getSubCategory() + "\n";
-		msg += "Keyword ▶ " + keyword + "\n" + "\n";
-    	msg += item.getSubject() + "\n" + "\n";
-    	msg += item.getUrl();
-		
-    	ppomppuBot.sendMessageToAll(msg);
 	}
 	
 	@EventListener
 	public void onCampingDateAddedEvent(CampingDateAddedEvent event) {
 		logger.info("onCampingDateAddedEvent");
 		
-		String msg = "▷ " + event.getSiteName() + " Open Date : " + event.getDateDesc();
-		campingBot.sendMessageToAll(msg);
+		try {
+			String msg = "▷ " + event.getSiteName() + " Open Date : " + event.getDateDesc();
+			campingBot.sendMessageToAll(msg);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
 	}
 	
 	@EventListener
 	public void onCampingAddedEvent(CampingAddedEvent event) {
 		logger.info("onCampingAddedEvent");
 		
-		String siteName = event.getSiteName();
-		String url = event.getUrl();
-		String dateDesc = event.getDateDesc();
-		CampingItem campingItem = event.getCampingItem();
-		
-		String msg = "▶ " + siteName + " " + campingItem.getState() + "\n";
-		msg += "Date : " + dateDesc + "\n";
-		msg += "Area : " + campingItem.getArea() + " " + campingItem.getNo() + "\n";
-		msg += "\n";
-		
-		msg += url;
-		
 		try {
+			String siteName = event.getSiteName();
+			String url = event.getUrl();
+			String dateDesc = event.getDateDesc();
+			CampingItem campingItem = event.getCampingItem();
+			
+			String msg = "▶ " + siteName + " " + campingItem.getState() + "\n";
+			msg += "Date : " + dateDesc + "\n";
+			msg += "Area : " + campingItem.getArea() + " " + campingItem.getNo() + "\n";
+			msg += "\n";
+			
+			msg += url;
+			
 			ConfigParam param = new ConfigParam();
 			param.setSectId(CodeConstants.SECT_ID_CAMP);
 			param.setKeyId(CodeConstants.KEY_ID_TELEGRAM);
@@ -207,28 +217,38 @@ public class TelegramListener {
 	public void onHardkernelAddedEvent(HardkernelAddedEvent event) {
 		logger.info("onHardkernelAddedEvent");
 		
-		WebPageItem webPageItemFromWeb = event.getWebPageItem();
-		String msg = "New [" + webPageItemFromWeb.getMainCategory() + "] \n";
-		msg += webPageItemFromWeb.getSubCategory() + "\n";
-		msg += webPageItemFromWeb.getUrl();
-
-		hardkernelBot.sendMessageToAll(msg);
+		try {
+			WebPageItem webPageItemFromWeb = event.getWebPageItem();
+			String msg = "New [" + webPageItemFromWeb.getMainCategory() + "] \n";
+			msg += webPageItemFromWeb.getSubCategory() + "\n";
+			msg += webPageItemFromWeb.getUrl();
+	
+			hardkernelBot.sendMessageToAll(msg);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
 	}
 	
 	@EventListener
 	public void onHardkernelChangedEvent(HardkernelChangedEvent event) {
 		logger.info("onHardkernelChangedEvent");
 		
-		WebPageItem webPageItemFromWeb = event.getWebPageItemFromWeb();
-		WebPageItem webPageItemFromDb = event.getWebPageItemFromDb();
-		
-		// 가격이 변경되는 경우
-		if (webPageItemFromWeb.getSubCategory().equals(webPageItemFromDb.getSubCategory()) == false) {
-			String msg = "[" + webPageItemFromWeb.getMainCategory() + "] \n";
-			msg += webPageItemFromDb.getSubCategory() + " -> " + webPageItemFromWeb.getSubCategory() + "\n";
-			msg += webPageItemFromWeb.getUrl();
+		try {
+			WebPageItem webPageItemFromWeb = event.getWebPageItemFromWeb();
+			WebPageItem webPageItemFromDb = event.getWebPageItemFromDb();
 			
-			hardkernelBot.sendMessageToAll(msg);
+			// 가격이 변경되는 경우
+			if (webPageItemFromWeb.getSubCategory().equals(webPageItemFromDb.getSubCategory()) == false) {
+				String msg = "[" + webPageItemFromWeb.getMainCategory() + "] \n";
+				msg += webPageItemFromDb.getSubCategory() + " -> " + webPageItemFromWeb.getSubCategory() + "\n";
+				msg += webPageItemFromWeb.getUrl();
+				
+				hardkernelBot.sendMessageToAll(msg);
+			}
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
 		}
 	}
 	
@@ -236,31 +256,36 @@ public class TelegramListener {
 	public void onPpomppuAddedEvent(PpomppuAddedEvent event) {
 		logger.info("onPpomppuAddedEvent");
 
-		String sectId = CodeConstants.SECT_ID_PPOMPPU;
-		WebPageItem item = event.getItem();
-		if (isMainCategoryForMessage(sectId, item) == false) {
-			logger.error(CodeConstants.SECT_ID_PPOMPPU + " ConfigItem 알람설정이 되지 않았습니다.");
-			return;
+		try {
+			String sectId = CodeConstants.SECT_ID_PPOMPPU;
+			WebPageItem item = event.getItem();
+			if (isMainCategoryForMessage(sectId, item) == false) {
+				logger.error(CodeConstants.SECT_ID_PPOMPPU + " ConfigItem 알람설정이 되지 않았습니다.");
+				return;
+			}
+	
+			// Sect별 키워드 확인
+			String keyword = getMatchedKeyword(sectId, item);
+			if (keyword == null || keyword.length() == 0) {
+				keyword = getMatchedKeyword(CodeConstants.SECT_ID_SYSTEM, item);
+			}
+			
+			if (keyword == null || keyword.length() == 0) {
+				logger.error(sectId + " Keyword가 없습니다.");
+				return;
+			}
+			
+			String msg = "";
+			msg = "[" + sectId + "] " + item.getMainCategory() + " * " + item.getSubCategory() + "\n";
+			msg += "Keyword ▶ " + keyword + "\n" + "\n";
+	    	msg += item.getSubject() + "\n" + "\n";
+	    	msg += item.getUrl();
+			
+	    	ppomppuBot.sendMessageToAll(msg);
+	    	
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
 		}
-
-		// Sect별 키워드 확인
-		String keyword = getMatchedKeyword(sectId, item);
-		if (keyword == null || keyword.length() == 0) {
-			keyword = getMatchedKeyword(CodeConstants.SECT_ID_SYSTEM, item);
-		}
-		
-		if (keyword == null || keyword.length() == 0) {
-			logger.error(sectId + " Keyword가 없습니다.");
-			return;
-		}
-		
-		String msg = "";
-		msg = "[" + sectId + "] " + item.getMainCategory() + " * " + item.getSubCategory() + "\n";
-		msg += "Keyword ▶ " + keyword + "\n" + "\n";
-    	msg += item.getSubject() + "\n" + "\n";
-    	msg += item.getUrl();
-		
-    	ppomppuBot.sendMessageToAll(msg);
 	}
 
 	@EventListener
