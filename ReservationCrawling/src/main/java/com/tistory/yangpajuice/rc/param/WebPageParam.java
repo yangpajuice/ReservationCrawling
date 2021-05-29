@@ -5,6 +5,7 @@ public class WebPageParam implements IDataParam {
 	private String id = "";
 	private String url = "";
 	private String mainCategory = "";
+	private String subCategory = "";
 
 	public String getUrl() {
 		return url;
@@ -36,5 +37,13 @@ public class WebPageParam implements IDataParam {
 
 	public void setMainCategory(String mainCategory) {
 		this.mainCategory = mainCategory;
+	}
+
+	public String getSubCategory() {
+		return subCategory;
+	}
+
+	public void setSubCategory(String subCategory) {
+		this.subCategory = subCategory;
 	}
 }

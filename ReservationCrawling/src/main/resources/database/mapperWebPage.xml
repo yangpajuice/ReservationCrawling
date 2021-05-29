@@ -99,6 +99,9 @@
 			<if test="mainCategory != null and mainCategory != '' " >
 				AND MAIN_CATEGORY = #{mainCategory}
 			</if>
+			<if test="subCategory != null and subCategory != '' " >
+				AND SUB_CATEGORY = #{subCategory}
+			</if>
 			ORDER BY INSERTED_DATE DESC
 		)
 		WHERE ROWNUM <![CDATA[<=]]> 100

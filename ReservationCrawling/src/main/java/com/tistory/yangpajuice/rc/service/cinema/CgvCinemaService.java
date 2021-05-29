@@ -67,16 +67,18 @@ public class CgvCinemaService extends CinemaService {
 						{"제휴",		"{mC: '006',rC:'' ,tC:'',iP:'1',pRow:'20',rnd6:'0',fList:''}"} // 제휴
 					};
 			
-			WebPageParam webPageParam = new WebPageParam();
-			webPageParam.setSite(SITE);
-			List<WebPageItem> webPageItemListFromDb = dbService.getRecentWebPageItemList(webPageParam);
-			List<WebPageItem> webPageItemListFromWeb = new ArrayList<WebPageItem>(); 
-			
 			for (int i = 0; i < requestPayloadList.length; i++) { // requestPayload : requestPayloadList[]) {
 				String mainCategory = "EVENT";
 				String subCategory = requestPayloadList[i][0];
 				String requestPayload = requestPayloadList[i][1];
-				logger.info("subCategory = " + subCategory + ", requestPayload = " + requestPayload);
+				logger.info("mainCategory = " + mainCategory + ", subCategory = " + subCategory + ", requestPayload = " + requestPayload);
+				
+				WebPageParam webPageParam = new WebPageParam();
+				webPageParam.setSite(SITE);
+				webPageParam.setMainCategory(mainCategory);
+				webPageParam.setSubCategory(subCategory);
+				List<WebPageItem> webPageItemListFromDb = dbService.getRecentWebPageItemList(webPageParam);
+				List<WebPageItem> webPageItemListFromWeb = new ArrayList<WebPageItem>(); 
 				
 		        String eventList = webClient.post().uri("/WebAPP/EventNotiV4/eventMain.aspx/getEventDataList")
 						.body(BodyInserters.fromValue(requestPayload)).exchange().block().bodyToMono(String.class).block();
@@ -125,27 +127,26 @@ public class CgvCinemaService extends CinemaService {
 					
 					webPageItemListFromWeb.add(webPageItem);
 				}
-			}
-			
-			for (WebPageItem webPageItem : webPageItemListFromWeb) {	
-				boolean existItem = false;
-				for (WebPageItem webPageItemFromDb : webPageItemListFromDb) {
-					if (webPageItemFromDb.getId().equals(webPageItem.getId()) == true) {
-						existItem = true;
-						break;
+				
+				for (WebPageItem webPageItem : webPageItemListFromWeb) {	
+					boolean existItem = false;
+					for (WebPageItem webPageItemFromDb : webPageItemListFromDb) {
+						if (webPageItemFromDb.getId().equals(webPageItem.getId()) == true) {
+							existItem = true;
+							break;
+						}
+					}
+					
+					if (existItem == true) {
+						
+					} else { // new item is added
+						int insertedCnt = dbService.insertWebPageItem(webPageItem);
+						
+						publisher.publishEvent(new CgvAddedEvent(webPageItem));
+						Thread.sleep(100);
 					}
 				}
-				
-				if (existItem == true) {
-					
-				} else { // new item is added
-					int insertedCnt = dbService.insertWebPageItem(webPageItem);
-					
-					publisher.publishEvent(new CgvAddedEvent(webPageItem));
-					Thread.sleep(100);
-				}
 			}
-			
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);
 		}

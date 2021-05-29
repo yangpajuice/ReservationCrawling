@@ -295,7 +295,7 @@ public class TelegramListener {
 		try {
 			WebPageItem webPageItem = cgvAddedEvent.getWebPageItem();
 			
-			String message = "[CGV]" + CodeConstants.NEW_LINE;
+			String message = "[CGV] " + webPageItem.getSubCategory() + CodeConstants.NEW_LINE;
 			message += webPageItem.getSubject() + CodeConstants.NEW_LINE;
 			message += webPageItem.getArticle() + CodeConstants.NEW_LINE;
 			message += webPageItem.getUrl();
