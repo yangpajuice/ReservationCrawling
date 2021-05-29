@@ -1,6 +1,7 @@
 package com.tistory.yangpajuice.rc.listener;
 
 import javax.annotation.*;
+import java.util.List;
 
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
@@ -15,7 +16,6 @@ import com.tistory.yangpajuice.rc.item.event.*;
 import com.tistory.yangpajuice.rc.param.*;
 import com.tistory.yangpajuice.rc.service.*;
 import com.tistory.yangpajuice.rc.service.telegrambot.*;
-import com.tistory.yangpajuice.rc.util.*;
 
 @Component
 public class TelegramListener {
@@ -74,7 +74,7 @@ public class TelegramListener {
 		ConfigParam param = new ConfigParam();
 		param.setSectId(sectId);
 		param.setKeyId(CodeConstants.KEY_ID_URL);
-		java.util.List<ConfigItem> configItemList = dbService.getConfigItemList(param);
+		List<ConfigItem> configItemList = dbService.getConfigItemList(param);
 		
 		for (ConfigItem configItem : configItemList) {
 			if (configItem.getValue2().equals(item.getMainCategory()) == true) {
@@ -94,7 +94,7 @@ public class TelegramListener {
 		ConfigParam param = new ConfigParam();
 		param.setSectId(sectId);
 		param.setKeyId(CodeConstants.KEY_ID_ALARM_KEYWORD);
-		java.util.List<ConfigItem> keywordList = dbService.getConfigItemList(param);
+		List<ConfigItem> keywordList = dbService.getConfigItemList(param);
 		if (keywordList == null || keywordList.size() == 0) {
 			
 		} else {
@@ -196,7 +196,7 @@ public class TelegramListener {
 			ConfigParam param = new ConfigParam();
 			param.setSectId(CodeConstants.SECT_ID_CAMP);
 			param.setKeyId(CodeConstants.KEY_ID_TELEGRAM);
-			java.util.List<ConfigItem> configItemList = dbService.getConfigItemList(param);
+			List<ConfigItem> configItemList = dbService.getConfigItemList(param);
 			if (configItemList != null && configItemList.size() > 0) {
 				for (ConfigItem configItem : configItemList) {
 					if (configItem.getValue().equals(siteName) == true) {

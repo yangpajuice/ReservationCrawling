@@ -25,6 +25,7 @@ import com.tistory.yangpajuice.rc.util.*;
 public class CgvCinemaService extends CinemaService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final String SITE = "CgvCinema";
+	private final String BASE_URL = "http://m.cgv.co.kr";
 	
 	@PostConstruct
 	private void init() {
@@ -53,58 +54,77 @@ public class CgvCinemaService extends CinemaService {
 		logger.info("START");
 		
 		try {
-			WebClient webClient = WebClient.builder().baseUrl("http://m.cgv.co.kr").defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).build();			
-			String requestPayload = "{mC: '004',rC:'GEN' ,tC:'',iP:'1',pRow:'20',rnd6:'0',fList:''}";
-
-	        String eventList = webClient.post().uri("/WebAPP/EventNotiV4/eventMain.aspx/getEventDataList")
-					.body(BodyInserters.fromValue(requestPayload)).exchange().block().bodyToMono(String.class).block();
-			if (eventList == null) {
-				logger.error("eventList is null");
-				return;
-			}
+			WebClient webClient = WebClient.builder().baseUrl(BASE_URL)
+									.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).build();
 			
-			Document doc = Jsoup.parse(eventList);
-			if (doc == null) {
-				logger.error("eventList is null");
-				return;
-			}
+			//String requestPayload = "{mC: '004',rC:'GEN' ,tC:'',iP:'1',pRow:'20',rnd6:'0',fList:''}";
+			String[][] requestPayloadList = new String[][]
+					{
+						{"Special",		"{mC: '001',rC:'GEN' ,tC:'',iP:'1',pRow:'20',rnd6:'0',fList:''}"}, // Special
+						{"영화",		"{mC: '004',rC:'GEN' ,tC:'',iP:'1',pRow:'20',rnd6:'0',fList:''}"}, // 영화
+						{"멤버십/Club",	"{mC: '008',rC:'GEN' ,tC:'',iP:'1',pRow:'20',rnd6:'0',fList:''}"}, // 멤버십/Club
+						{"극장",		"{mC: '005',rC:'' ,tC:'',iP:'1',pRow:'20',rnd6:'0',fList:''}"}, // 극장
+						{"제휴",		"{mC: '006',rC:'' ,tC:'',iP:'1',pRow:'20',rnd6:'0',fList:''}"} // 제휴
+					};
 			
 			WebPageParam webPageParam = new WebPageParam();
 			webPageParam.setSite(SITE);
 			List<WebPageItem> webPageItemListFromDb = dbService.getRecentWebPageItemList(webPageParam);
 			List<WebPageItem> webPageItemListFromWeb = new ArrayList<WebPageItem>(); 
-			Elements elms = doc.getElementsByClass("sponsorFpType0");
-			for (Element elm : elms) {
-				WebPageItem webPageItem = new WebPageItem();
+			
+			for (int i = 0; i < requestPayloadList.length; i++) { // requestPayload : requestPayloadList[]) {
+				String mainCategory = "EVENT";
+				String subCategory = requestPayloadList[i][0];
+				String requestPayload = requestPayloadList[i][1];
+				logger.info("subCategory = " + subCategory + ", requestPayload = " + requestPayload);
 				
-				webPageItem.setSite(SITE);
-				webPageItem.setInsertedDate(StrUtil.getCurDateTime());
-				
-				String id = elm.attr("id"); // ex) event_seq_32351
-				id = id.replace("event_seq_", ""); // prefix 제거				
-				webPageItem.setId(id);
-				
-				Elements subElms = elm.select("a");
-				String[] urlList = subElms.get(0).attr("href").split("'");
-				String subUrl = urlList[1];
-				if (subUrl.startsWith("./EventDetailGeneralUnited") == true) { // ex) ./EventDetailGeneralUnited.aspx?seq=32348&mCode=004&iPage=1
-					subUrl = subUrl.substring(1);
-					subUrl = "/WebApp/EventNotiV4/" + subUrl;
+		        String eventList = webClient.post().uri("/WebAPP/EventNotiV4/eventMain.aspx/getEventDataList")
+						.body(BodyInserters.fromValue(requestPayload)).exchange().block().bodyToMono(String.class).block();
+				if (eventList == null) {
+					logger.error("eventList is null");
+					return;
 				}
-				String url = "http://m.cgv.co.kr" + subUrl;
-				webPageItem.setUrl(url);
 				
-				webPageItem.setMainCategory("EVENT");
-				webPageItem.setSubCategory("영화");
+				Document doc = Jsoup.parse(eventList);
+				if (doc == null) {
+					logger.error("eventList is null");
+					return;
+				}
 				
-				Element imgElm = elm.selectFirst("img");
-				String subject = imgElm.attr("alt");
-				webPageItem.setSubject(subject);
+				Elements elms = doc.getElementsByClass("sponsorFpType0");
 				
-				webPageItem.setArticle("");
-				webPageItem.setPostDate("");
-				
-				webPageItemListFromWeb.add(webPageItem);
+				for (Element elm : elms) {
+					WebPageItem webPageItem = new WebPageItem();
+					
+					webPageItem.setSite(SITE);
+					webPageItem.setInsertedDate(StrUtil.getCurDateTime());
+					
+					String id = elm.attr("id"); // ex) event_seq_32351
+					id = id.replace("event_seq_", ""); // prefix 제거				
+					webPageItem.setId(id);
+					
+					Elements subElms = elm.select("a");
+					String[] urlList = subElms.get(0).attr("href").split("'");
+					String subUrl = urlList[1];
+					if (subUrl.startsWith("./EventDetailGeneral") == true) { // ex) ./EventDetailGeneralUnited.aspx?seq=32348&mCode=004&iPage=1
+						subUrl = subUrl.substring(1);
+						subUrl = "/WebApp/EventNotiV4" + subUrl;
+					}
+					String url = BASE_URL + subUrl;
+					webPageItem.setUrl(url);
+					
+					webPageItem.setMainCategory(mainCategory);
+					webPageItem.setSubCategory(subCategory);
+					
+					Element imgElm = elm.selectFirst("img");
+					String subject = imgElm.attr("alt");
+					webPageItem.setSubject(subject);
+					
+					webPageItem.setArticle("");
+					webPageItem.setPostDate("");
+					
+					webPageItemListFromWeb.add(webPageItem);
+				}
 			}
 			
 			for (WebPageItem webPageItem : webPageItemListFromWeb) {	
