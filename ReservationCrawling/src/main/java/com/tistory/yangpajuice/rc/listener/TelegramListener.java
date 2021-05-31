@@ -260,7 +260,7 @@ public class TelegramListener {
 			String sectId = CodeConstants.SECT_ID_PPOMPPU;
 			WebPageItem item = event.getItem();
 			if (isMainCategoryForMessage(sectId, item) == false) {
-				logger.error(CodeConstants.SECT_ID_PPOMPPU + " ConfigItem 알람설정이 되지 않았습니다.");
+				logger.error(sectId + " ConfigItem 알람설정이 되지 않았습니다.");
 				return;
 			}
 	
@@ -294,8 +294,16 @@ public class TelegramListener {
 		
 		try {
 			WebPageItem webPageItem = cgvAddedEvent.getWebPageItem();
+			String sectId = CodeConstants.SECT_ID_CINEMA;
+			String keyword = getMatchedKeyword(sectId, webPageItem);
+			if (keyword == null || keyword.length() == 0) {
+				logger.error(sectId + " Keyword가 없습니다.");
+				return;
+			}
 			
-			String message = "[CGV] " + webPageItem.getSubCategory() + CodeConstants.NEW_LINE;
+			String message = "▶ " + sectId + " Keyword : " + keyword + CodeConstants.NEW_LINE;
+			message += CodeConstants.NEW_LINE;
+			message += "[CGV] " + webPageItem.getSubCategory() + CodeConstants.NEW_LINE;
 			message += webPageItem.getSubject() + CodeConstants.NEW_LINE;
 			message += webPageItem.getArticle() + CodeConstants.NEW_LINE;
 			message += webPageItem.getUrl();
@@ -313,9 +321,17 @@ public class TelegramListener {
 		
 		try {
 			WebPageItem webPageItem = event.getWebPageItem();
+			String sectId = CodeConstants.SECT_ID_CINEMA;
+			String keyword = getMatchedKeyword(sectId, webPageItem);
+			if (keyword == null || keyword.length() == 0) {
+				logger.error(sectId + " Keyword가 없습니다.");
+				return;
+			}
 			
 			// send message
-			String message = "[롯데시네마]" + CodeConstants.NEW_LINE;
+			String message = "▶ " + sectId + " Keyword : " + keyword + CodeConstants.NEW_LINE;
+			message += CodeConstants.NEW_LINE;
+			message += "[롯데시네마]" + CodeConstants.NEW_LINE;
 			message += webPageItem.getSubject() + CodeConstants.NEW_LINE;
 			message += webPageItem.getArticle() + CodeConstants.NEW_LINE;
 			message += CodeConstants.NEW_LINE;
