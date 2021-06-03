@@ -105,8 +105,17 @@ public class TelegramListener {
 				
 				String subject = item.getSubject().toUpperCase();
 				String kwd = keyword.getValue().toUpperCase();
-				
-				if (subject.contains(kwd) == true) {
+				String[] kwdList = kwd.split(" ");
+				boolean isMatched = true;
+				for (String kwdItem : kwdList) {
+					if (subject.contains(kwd) == true) {
+						// ok
+					} else {
+						isMatched = false;
+						break;
+					}
+				}
+				if (isMatched == true) {
 					rtnKeyword = kwd;
 					break;
 				}
