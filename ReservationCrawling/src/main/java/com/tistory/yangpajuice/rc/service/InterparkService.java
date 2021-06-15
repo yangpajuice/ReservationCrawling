@@ -116,6 +116,8 @@ public class InterparkService implements IService {
 					if (isChanged(oldItem, interparkItem) == true) {
 						publisher.publishEvent(new InterparkUpdatedEvent(link, interparkItem));	
 					}
+
+					itemList.replace(key, interparkItem);
 					
 				} else { // new Item
 					itemList.put(key, interparkItem);
