@@ -136,26 +136,35 @@ public class InterparkService implements IService {
 		List<InterparkRemainSeat> oldRemainSeatList = oldItem.getData().getRemainSeat();
 		List<InterparkRemainSeat> newRemainSeatList = newItem.getData().getRemainSeat();
 		
-		if (oldRemainSeatList.size() != newRemainSeatList.size()) {
-			return true;
+		try {
+			if (oldRemainSeatList.size() != newRemainSeatList.size()) {
+				return true;
+			}
+			
+			for (int i = 0; i < oldRemainSeatList.size(); i++) {
+				InterparkRemainSeat oldRemainSeat = oldRemainSeatList.get(i);
+				InterparkRemainSeat newRemainSeat = newRemainSeatList.get(i);
+	
+				if (oldRemainSeat.getSeatGrade().equals(newRemainSeat.getSeatGrade()) == false) {
+					return true;
+				}
+				
+				if (oldRemainSeat.getSeatGradeName().equals(newRemainSeat.getSeatGradeName()) == false) {
+					return true;
+				}
+				
+				if (oldRemainSeat.getRemainCnt().equals(newRemainSeat.getRemainCnt()) == false) {
+					int oldCnt = Integer.parseInt(oldRemainSeat.getRemainCnt());
+					int newCnt = Integer.parseInt(newRemainSeat.getRemainCnt());
+					if (newCnt > oldCnt) { // 수량이 증가되는 경우만
+						return true;
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
 		}
 		
-		for (int i = 0; i < oldRemainSeatList.size(); i++) {
-			InterparkRemainSeat oldRemainSeat = oldRemainSeatList.get(i);
-			InterparkRemainSeat newRemainSeat = newRemainSeatList.get(i);
-
-			if (oldRemainSeat.getSeatGrade().equals(newRemainSeat.getSeatGrade()) == false) {
-				return true;
-			}
-			
-			if (oldRemainSeat.getSeatGradeName().equals(newRemainSeat.getSeatGradeName()) == false) {
-				return true;
-			}
-			
-			if (oldRemainSeat.getRemainCnt().equals(newRemainSeat.getRemainCnt()) == false) {
-				return true;
-			}
-		}
 		return false;
 	}
 }
