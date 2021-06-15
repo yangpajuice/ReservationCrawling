@@ -13,6 +13,7 @@ public class CodeConstants {
 	public static final String SECT_ID_HARDKERNEL = "HARDKERNEL";
 	public static final String SECT_ID_PPOMPPU = "PPOMPPU";
 	public static final String SECT_ID_CINEMA = "CINEMA";
+	public static final String SECT_ID_INTERPARK = "INTERPARK";
 	
 	public static final String KEY_ID_DATE = "DATE";
 	public static final String KEY_ID_URL = "URL";

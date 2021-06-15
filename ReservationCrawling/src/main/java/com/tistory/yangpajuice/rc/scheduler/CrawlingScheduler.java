@@ -38,9 +38,17 @@ public class CrawlingScheduler {
 	@Autowired
 	private CgvCinemaService cgvCinemaService;
 
+	@Autowired
+	private InterparkService interparkService;
+	
 	@PostConstruct
     private void init() {
 		logger.info("Initialized");
+	}
+	
+	@Scheduled(fixedRate = 1000 * 30) // 30초
+	public void InterparkScheduler() {
+		interparkService.start();
 	}
 	
 	@Scheduled(fixedRate = 1000 * 60) // 1분

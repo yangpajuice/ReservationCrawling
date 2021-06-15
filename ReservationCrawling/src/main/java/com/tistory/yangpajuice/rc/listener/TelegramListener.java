@@ -41,6 +41,9 @@ public class TelegramListener {
 	@Autowired
 	protected CinemaBot cinemaBot;
 	
+	@Autowired
+	protected InterparkBot interparkBot;
+	
 	private void registerTelegramBot() { // TelegramBot 설정
 		try {
 			registerTelegramBot(clienBot);
@@ -48,6 +51,7 @@ public class TelegramListener {
 			registerTelegramBot(campingBot);
 			registerTelegramBot(hardkernelBot);
 			registerTelegramBot(cinemaBot);
+			registerTelegramBot(interparkBot);
 
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);
@@ -165,7 +169,7 @@ public class TelegramListener {
 	    	msg += item.getSubject() + "\n" + "\n";
 	    	msg += item.getUrl();
 			
-	    	ppomppuBot.sendMessageToAll(msg);
+	    	clienBot.sendMessageToAll(msg);
 	    	
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);
@@ -347,6 +351,38 @@ public class TelegramListener {
 			message += webPageItem.getUrl();
 			
 			cinemaBot.sendMessageToAll(message);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+	}
+	
+	@EventListener
+	public void onInterparkAddedEvent(InterparkAddedEvent event) {
+		logger.info("onInterparkAddedEvent");
+		
+		try {
+			// send message
+			String message = "▶ 추가" + CodeConstants.NEW_LINE;
+			message += CodeConstants.NEW_LINE;
+			message += event.getInterparkItem().getData().getPlayDate() + CodeConstants.NEW_LINE;
+			
+			message += CodeConstants.NEW_LINE;
+			message += event.getLink();
+			
+			interparkBot.sendMessageToAll(message);
+			
+		} catch (Exception e) {
+			logger.error("An exception occurred!", e);
+		}
+	}
+	
+	@EventListener
+	public void onInterparkUpdatedEvent(InterparkUpdatedEvent event) {
+		logger.info("InterparkUpdatedEvent");
+		
+		try {
+			
 			
 		} catch (Exception e) {
 			logger.error("An exception occurred!", e);
